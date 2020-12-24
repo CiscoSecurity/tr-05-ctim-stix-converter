@@ -1,0 +1,167 @@
+from abc import ABC, abstractmethod
+from bundlebuilder.models import Observable
+
+from mappings.bundled_entity import BundledEntityMapping
+from mappings.mapping_result import CTIMMappingResult
+from utils import all_subclasses
+
+
+class STIXCyberObservableObject(BundledEntityMapping, ABC):
+    def map_to_ctim(self):
+        observables = []
+        for ctim_type, getter in self.mapping().items():
+            ctim_value = getter(self.stix_object)
+            if ctim_value:
+                observables.append(
+                    Observable(type=ctim_type, value=ctim_value)
+                )
+
+        return CTIMMappingResult(observables)
+
+    @staticmethod
+    @abstractmethod
+    def mapping():
+        pass
+
+
+class Directory(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'directory'
+
+    @staticmethod
+    def mapping():
+        return {'file_path': value_getter('path')}
+
+
+class DomainName(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'domain-name'
+
+    @staticmethod
+    def mapping():
+        return {'domain': value_getter()}
+
+
+class EmailAddress(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'email-addr'
+
+    def ctim_type(self):
+        return 'email'
+
+    @staticmethod
+    def mapping():
+        return {'email': value_getter()}
+
+
+class EmailMessage(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'email-message'
+
+    @staticmethod
+    def mapping():
+        return {'email_message_id': value_getter('message_id'),
+                'email_subject': value_getter('subject')}
+
+
+# ToDo: create file_path from directory ref /md5/sha1/sha256 ??
+class File(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'file'
+
+    @staticmethod
+    def mapping():
+        return {
+            'file_name': value_getter('name'),
+            'md5': lambda sco: sco.get('hashes', {}).get('MD5'),
+            'sha1': lambda sco: sco.get('hashes', {}).get(''),
+            'sha256': lambda sco: sco.get('hashes', {}).get('SHA256'),
+        }
+
+
+class IPv4Address(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'ipv4-addr'
+
+    @staticmethod
+    def mapping():
+        return {'ip': value_getter()}
+
+
+class IPv6Address(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'ipv6-addr'
+
+    @staticmethod
+    def mapping():
+        return {'ipv6': value_getter()}
+
+
+class MACAddress(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'mac-addr'
+
+    @staticmethod
+    def mapping():
+        return {'mac_address': value_getter()}
+
+
+class MutexAddress(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'mutex'
+
+    @staticmethod
+    def mapping():
+        return {'mutex': value_getter('name')}
+
+
+class URL(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'url'
+
+    @staticmethod
+    def mapping():
+        return {'url': value_getter()}
+
+
+class CertificateObject(STIXCyberObservableObject):
+    @classmethod
+    def type(cls):
+        return 'x509-certificate'
+
+    @staticmethod
+    def mapping():
+        return {'certificate_serial': value_getter('serial_number'),
+                'certificate_issuer': value_getter('issuer')}
+
+
+def value_getter(path='value', default=None):
+    def f(input_dict):
+        return input_dict.get(path, default)
+    return f
+
+ex=[{
+        "type": "x509-certificate",
+        "spec_version": "2.1",
+        "id": "x509-certificate--463d7b2a-8516-5a50-a3d7-6f801465d5de",
+        "issuer": "C=ZA, ST=Western Cape, L=Cape Town, O=Thawte Consulting cc, OU=Certification Services Division, CN=Thawte Server CA/emailAddress=server-certs@thawte.com",
+        "validity_not_before": "2016-03-12T12:00:00Z",
+        "validity_not_after": "2016-08-21T12:00:00Z",
+        "subject": "C=US, ST=Maryland, L=Pasadena, O=Brent Baccala, OU=FreeSoft, CN=www.freesoft.org/emailAddress=baccala@freesoft.org",
+        "serial_number": "36:f7:d4:32:f4:ab:70:ea:d3:ce:98:6e:ea:99:93:49:32:0a:b7:06"
+    }
+]
+
+r = STIXCyberObservableObject.for_(ex[0], ex).map_to_ctim()
+for rr in r._objects:
+    print(rr.json())
