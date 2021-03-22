@@ -23,9 +23,8 @@ class NoObservablesFound(Exception):
     pass
 
 
-def extract_observables(file_name, tr_client, exclude):
+def extract_observables(file_name, tr_client, exclude=None):
     exclude = exclude or []
-    file_name = os.path.abspath(file_name)
     with open(file_name) as file:
         observables = tr_client.inspect.inspect({'content': file.read()})
         observables = [ob for ob in observables if ob['value'] not in exclude]
@@ -87,6 +86,8 @@ def build_bundle(observables, file_name, session_):
 def get_arguments():
     parser = ArgumentParser(
         description='Transforms STIX data into CTIM Bundle.',
+        epilog=('Required environment variables: CTR_CLIENT, CTR_PASSWORD. \n'
+                'Optional environment variables: CTR_REGION (default: us).'),
         formatter_class=ArgumentDefaultsHelpFormatter
     )
     parser.add_argument('file', help='STIX file to process')
