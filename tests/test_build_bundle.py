@@ -1,6 +1,10 @@
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
+from bundlebuilder.exceptions import ValidationError, SchemaError
+from pytest import raises, mark
+
+from exceptions import BundleBuilderError
 from translator import build_bundle
 
 TEST_FILE = 'test_file.xml'
@@ -107,20 +111,31 @@ def test_build_bundle():
     result = result.json
 
     check_and_pop_id(result)
-
     check_and_pop_id(result['relationships'][0])
     assert result['sightings'][0]['id'] == result['relationships'][0].pop(
         'source_ref')
     assert result['indicators'][0]['id'] == result['relationships'][0].pop(
         'target_ref')
-
     check_and_pop_id(result['sightings'][0])
     check_and_pop_time(result['sightings'][0], 'observed_time', start_time)
-
     check_and_pop_id(result['indicators'][0])
     check_and_pop_time(
         result['indicators'][0], 'valid_time',
         start_time, start_time + timedelta(30)
     )
-
     assert result == EXPECTED_RESULT
+
+
+@mark.parametrize(
+    'error', (ValidationError, SchemaError), ids=str(),
+)
+def test_build_bundle_failed(error):
+    session_ = MagicMock()
+    with patch('translator.Sighting') as sighting_mock:
+        sighting_mock.side_effect = error()
+
+        with raises(BundleBuilderError):
+            build_bundle(
+                [{'value': 'a.com', 'type': 'domain'}],
+                TEST_FILE, session_
+            )

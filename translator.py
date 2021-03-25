@@ -1,14 +1,39 @@
 import json
+import logging
 import os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from datetime import datetime, timedelta
 
+from bundlebuilder.exceptions import ValidationError, SchemaError
 from bundlebuilder.models import (
     Sighting, Bundle, ObservedTime, Observable,
     Indicator, ValidTime, Relationship
 )
 from bundlebuilder.session import Session
+from requests.exceptions import (
+    ConnectionError,
+    Timeout as TimeoutError,
+    HTTPError
+)
 from threatresponse import ThreatResponse
+from threatresponse.exceptions import RegionError
+
+from exceptions import (
+    NoObservablesFoundError,
+    FailedToReadFileError,
+    BundleBuilderError,
+    CredentialsNotSetError,
+    BaseTranslatorError,
+    InvalidRegionError,
+    TRError
+)
+
+logging.basicConfig(
+    filename='translator.logs', level=logging.ERROR,
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
 
 DEFAULT_REGION = 'us'
 DEFAULT_SOURCE = 'CTIM-STIX Translator'
@@ -17,70 +42,6 @@ DEFAULT_SOURCE_URI = (
 )
 DEFAULT_EXTERNAL_ID_PREFIX = 'ctim-stix-translator'
 NUMBER_OF_DAYS_INDICATOR_IS_VALID = 30
-
-
-class NoObservablesFound(Exception):
-    pass
-
-
-def extract_observables(file_name, tr_client, exclude=None):
-    exclude = exclude or []
-    with open(file_name) as file:
-        observables = tr_client.inspect.inspect({'content': file.read()})
-        observables = [ob for ob in observables if ob['value'] not in exclude]
-        return observables
-
-
-def build_bundle(observables, file_name, session_):
-    def format_time(time):
-        return f'{time.isoformat(timespec="seconds")}Z'
-
-    with session_.set():
-        now = datetime.now()
-        now_str = format_time(now)
-
-        bundle = Bundle()
-
-        sighting = Sighting(
-            confidence='High',
-            count=1,
-            observed_time=ObservedTime(
-                start_time=now_str,
-                end_time=now_str,
-            ),
-            observables=[
-                Observable(**ob) for ob in observables
-            ],
-            title=f'Found in {file_name}',
-            internal=False
-        )
-
-        bundle.add_sighting(sighting)
-
-        indicator = Indicator(
-            producer=DEFAULT_SOURCE,
-            valid_time=ValidTime(
-                start_time=now_str,
-                end_time=format_time(
-                    now + timedelta(NUMBER_OF_DAYS_INDICATOR_IS_VALID)
-                ),
-            ),
-            confidence='High',
-            title=f'Found in {file_name}',
-        )
-
-        bundle.add_indicator(indicator)
-
-        relationship_from_sighting_to_indicator = Relationship(
-            relationship_type='member-of',
-            source_ref=sighting,
-            target_ref=indicator,
-            short_description=f'{sighting} is member-of {indicator}',
-        )
-
-        bundle.add_relationship(relationship_from_sighting_to_indicator)
-
-        return bundle
 
 
 def get_arguments():
@@ -110,21 +71,109 @@ def get_arguments():
     return parser.parse_args()
 
 
+def get_tr_client():
+    try:
+        return ThreatResponse(
+                client_id=os.environ['CTR_CLIENT'],
+                client_password=os.environ['CTR_PASSWORD'],
+                region=os.getenv('CTR_REGION', DEFAULT_REGION)
+            )
+
+    except KeyError as error:
+        raise CredentialsNotSetError(error)
+
+    except RegionError as error:
+        raise InvalidRegionError(error)
+
+    except (TimeoutError, ConnectionError, HTTPError) as error:
+        raise TRError(error)
+
+
+def extract_observables(file_name, tr_client, exclude=None):
+    exclude = exclude or []
+    try:
+        with open(file_name) as file:
+            observables = tr_client.inspect.inspect({'content': file.read()})
+            observables = [
+                ob for ob in observables if ob['value'] not in exclude
+            ]
+
+    except (TimeoutError, ConnectionError, HTTPError) as error:
+        raise TRError(error)
+
+    except OSError as error:
+        raise FailedToReadFileError(error)
+
+    if not observables:
+        raise NoObservablesFoundError(file_name)
+
+    return observables
+
+
+def build_bundle(observables, file_name, session_):
+    def format_time(time):
+        return f'{time.isoformat(timespec="seconds")}Z'
+    try:
+        with session_.set():
+            now = datetime.now()
+            now_str = format_time(now)
+
+            bundle = Bundle()
+
+            sighting = Sighting(
+                confidence='High',
+                count=1,
+                observed_time=ObservedTime(
+                    start_time=now_str,
+                    end_time=now_str,
+                ),
+                observables=[
+                    Observable(**ob) for ob in observables
+                ],
+                title=f'Found in {file_name}',
+                internal=False
+            )
+
+            bundle.add_sighting(sighting)
+
+            indicator = Indicator(
+                producer=DEFAULT_SOURCE,
+                valid_time=ValidTime(
+                    start_time=now_str,
+                    end_time=format_time(
+                        now + timedelta(NUMBER_OF_DAYS_INDICATOR_IS_VALID)
+                    ),
+                ),
+                confidence='High',
+                title=f'Found in {file_name}',
+            )
+
+            bundle.add_indicator(indicator)
+
+            relationship_from_sighting_to_indicator = Relationship(
+                relationship_type='member-of',
+                source_ref=sighting,
+                target_ref=indicator,
+                short_description=f'{sighting} is member-of {indicator}',
+            )
+
+            bundle.add_relationship(relationship_from_sighting_to_indicator)
+
+            return bundle
+
+    except (ValidationError, SchemaError) as error:
+        raise BundleBuilderError(error)
+
+
 def main():
     try:
         args = get_arguments()
-        tr_client = ThreatResponse(
-            client_id=os.environ['CTR_CLIENT'],
-            client_password=os.environ['CTR_PASSWORD'],
-            region=os.getenv('CTR_REGION', DEFAULT_REGION)
-        )
 
+        tr_client = get_tr_client()
         file_name = os.path.basename(args.file)
         observables = extract_observables(
             file_name, tr_client, exclude=args.exclude
         )
-        if not observables:
-            raise NoObservablesFound(f'No observables found in {file_name}')
 
         session_ = Session(
             external_id_prefix=args.external_id_prefix,
@@ -134,8 +183,9 @@ def main():
         bundle = build_bundle(observables, file_name, session_)
         print(json.dumps(bundle.json, indent=4, sort_keys=True))
 
-    except Exception as e:
-        print('Error occurred: ', str(e))
+    except BaseTranslatorError as error:
+        logging.error(error)
+        print('Error occurred: ', str(error))
 
 
 if __name__ == '__main__':
