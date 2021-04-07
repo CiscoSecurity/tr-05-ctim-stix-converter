@@ -1,5 +1,12 @@
 class BaseTranslatorError(Exception):
-    pass
+    @property
+    def json(self):
+        return str(self)
+
+
+class InvalidArgumentError(BaseTranslatorError):
+    def __init__(self, error):
+        super().__init__(error)
 
 
 class NoObservablesFoundError(BaseTranslatorError):
@@ -10,16 +17,14 @@ class NoObservablesFoundError(BaseTranslatorError):
 class CredentialsNotSetError(BaseTranslatorError):
     def __init__(self, *args):
         super().__init__(
-            'Make sure that CTR_CLIENT and CTR_PASSWORD'
-            ' environment variables are set to your API credentials.'
+            'Authorization failed: Missing credentials.'
         )
 
 
 class InvalidRegionError(BaseTranslatorError):
     def __init__(self, *args):
         super().__init__(
-            'Make sure that CTR_REGION environment variable'
-            ' is set to valid Region.'
+            'Authorization failed: Invalid region.'
         )
 
 
