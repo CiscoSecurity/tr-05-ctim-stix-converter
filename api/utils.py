@@ -3,7 +3,6 @@ from requests import HTTPError
 from threatresponse import ThreatResponse
 from threatresponse.exceptions import RegionError
 
-from api.constants import DEFAULT_REGION
 from api.exceptions import (
     CredentialsNotSetError,
     InvalidRegionError,
@@ -12,13 +11,16 @@ from api.exceptions import (
 )
 
 
-def get_json(schema):
+def get_json(schema=None):
     """
     Parse the incoming request's data as JSON.
-    Validate and deserialize it with specified schema.
+    Validate and deserialize it with specified schema if specified.
     """
 
     data = request.get_json(force=True, silent=True, cache=False)
+
+    if schema is None:
+        return data
 
     message = schema.validate(data)
     if message:
@@ -27,12 +29,16 @@ def get_json(schema):
     return schema.load(data)
 
 
-def get_tr_client(client, password, region=DEFAULT_REGION):
+def get_tr_client():
     try:
-        assert client and password
+        client_id = request.authorization.username
+        client_password = request.authorization.password
+        assert client_id and client_password
 
         return ThreatResponse(
-            client_id=client, client_password=password, region=region
+            client_id=client_id,
+            client_password=client_password,
+            region=request.args.get('region')
         )
 
     except AssertionError as error:

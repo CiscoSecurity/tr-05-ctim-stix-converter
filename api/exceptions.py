@@ -42,7 +42,7 @@ class BundleBuilderError(BaseTranslatorError):
 
 class TRError(BaseTranslatorError):
     def __init__(self, error):
-        message = None
+        message = ''
         if getattr(error, 'response') is not None:
             if self.is_authentication_error(error.response):
                 message = (
@@ -55,13 +55,11 @@ class TRError(BaseTranslatorError):
                     ' Make sure that your API client'
                     ' has correct scope settings.'
                 )
-            else:
-                message = 'Unexpected response:'
 
             message = message + str(error.response.text)
 
         super().__init__(
-            'Failed to connect to Cisco SecureX Threat Response.'
+            'Unexpected response from Cisco SecureX Threat Response:'
             f' {message or str(error)}'
         )
 
