@@ -7,18 +7,14 @@ from bundlebuilder.models import (
     Indicator, ValidTime, Relationship
 )
 from bundlebuilder.session import Session
-from requests.exceptions import (
-    ConnectionError,
-    Timeout as TimeoutError,
-    HTTPError
-)
+from requests.exceptions import HTTPError
+
 
 from api.constants import NUMBER_OF_DAYS_INDICATOR_IS_VALID, DEFAULT_SOURCE
 from api.exceptions import (
     NoObservablesFoundError,
     FailedToReadFileError,
-    BundleBuilderError,
-    TRError
+    BundleBuilderError, TRError
 )
 
 
@@ -45,7 +41,7 @@ def extract_observables(file_name, tr_client, exclude=None):
                 ob for ob in observables if ob['value'] not in exclude
             ]
 
-    except (TimeoutError, ConnectionError, HTTPError) as error:
+    except HTTPError as error:
         raise TRError(error)
 
     except OSError as error:

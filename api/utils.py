@@ -1,13 +1,12 @@
 from flask import request
-from requests import HTTPError
+from requests.exceptions import HTTPError
 from threatresponse import ThreatResponse
 from threatresponse.exceptions import RegionError
 
 from api.exceptions import (
     CredentialsNotSetError,
     InvalidRegionError,
-    TRError,
-    InvalidArgumentError
+    InvalidArgumentError, TRError
 )
 
 
@@ -47,5 +46,5 @@ def get_tr_client():
     except RegionError as error:
         raise InvalidRegionError(error)
 
-    except (TimeoutError, ConnectionError, HTTPError) as error:
+    except HTTPError as error:
         raise TRError(error)
