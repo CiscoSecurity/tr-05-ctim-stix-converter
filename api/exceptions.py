@@ -15,28 +15,20 @@ class InvalidArgumentError(BaseTranslatorError, BadRequest):
 class CredentialsNotSetError(BaseTranslatorError, BadRequest):
     def __init__(self, *args):
         super().__init__(
-            'Authorization failed: Missing credentials.'
+            'Bad Request: Missing credentials.'
         )
 
 
 class InvalidRegionError(BaseTranslatorError, BadRequest):
     def __init__(self, *args):
         super().__init__(
-            'Authorization failed: Invalid region.'
+            'Bad Request: Invalid region.'
         )
 
 
 class NoObservablesFoundError(BaseTranslatorError, UnprocessableEntity):
-    def __init__(self, file_name):
-        super().__init__(f'No observables found in {file_name}')
-
-
-# ToDo deprecate
-class FailedToReadFileError(BaseTranslatorError, UnprocessableEntity):
-    def __init__(self, error):
-        super().__init__(
-            f'Failed to read file: {str(error)}'
-        )
+    def __init__(self):
+        super().__init__('No observables found.')
 
 
 class BundleBuilderError(BaseTranslatorError, UnprocessableEntity):

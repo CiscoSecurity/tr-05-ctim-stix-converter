@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 
 from bundlebuilder.exceptions import ValidationError, SchemaError
@@ -9,19 +8,17 @@ from bundlebuilder.models import (
 from bundlebuilder.session import Session
 from requests.exceptions import HTTPError
 
-
 from api.constants import NUMBER_OF_DAYS_INDICATOR_IS_VALID, DEFAULT_SOURCE
 from api.exceptions import (
     NoObservablesFoundError,
-    FailedToReadFileError,
-    BundleBuilderError, TRError
+    BundleBuilderError,
+    TRError
 )
 
 
 def translate(args, tr_client):
-    file_name = os.path.basename(args['file'])
     observables = extract_observables(
-        file_name, tr_client, exclude=args['exclude']
+        args['content'], tr_client, exclude=args['exclude']
     )
 
     session_ = Session(
@@ -29,31 +26,27 @@ def translate(args, tr_client):
         source=args['source'],
         source_uri=args['source_uri']
     )
-    return build_bundle(observables, file_name, session_)
+    return build_bundle(observables, args['title'], session_)
 
 
-def extract_observables(file_name, tr_client, exclude=None):
+def extract_observables(content, tr_client, exclude=None):
     exclude = exclude or []
     try:
-        with open(file_name) as file:
-            observables = tr_client.inspect.inspect({'content': file.read()})
-            observables = [
-                ob for ob in observables if ob['value'] not in exclude
-            ]
+        observables = tr_client.inspect.inspect({'content': content})
+        observables = [
+            ob for ob in observables if ob['value'] not in exclude
+        ]
 
     except HTTPError as error:
         raise TRError(error)
 
-    except OSError as error:
-        raise FailedToReadFileError(error)
-
     if not observables:
-        raise NoObservablesFoundError(file_name)
+        raise NoObservablesFoundError()
 
     return observables
 
 
-def build_bundle(observables, file_name, session_):
+def build_bundle(observables, title, session_):
     def format_time(time):
         return f'{time.isoformat(timespec="seconds")}Z'
 
@@ -74,7 +67,7 @@ def build_bundle(observables, file_name, session_):
                 observables=[
                     Observable(**ob) for ob in observables
                 ],
-                title=f'Found in {file_name}',
+                title=title,
                 internal=False
             )
 
@@ -89,7 +82,7 @@ def build_bundle(observables, file_name, session_):
                     ),
                 ),
                 confidence='High',
-                title=f'Found in {file_name}',
+                title=title,
             )
 
             bundle.add_indicator(indicator)
