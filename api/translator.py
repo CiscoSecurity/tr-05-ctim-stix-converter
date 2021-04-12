@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from bundlebuilder.exceptions import ValidationError, SchemaError
 from bundlebuilder.models import (
@@ -8,7 +8,11 @@ from bundlebuilder.models import (
 from bundlebuilder.session import Session
 from requests.exceptions import HTTPError
 
-from api.constants import NUMBER_OF_DAYS_INDICATOR_IS_VALID, DEFAULT_SOURCE
+from api.constants import (
+    INDICATOR_VALIDITY_INTERVAL,
+    SIGHTING_DEFAULTS,
+    INDICATOR_DEFAULTS
+)
 from api.exceptions import (
     NoObservablesFoundError,
     BundleBuilderError,
@@ -18,15 +22,15 @@ from api.exceptions import (
 
 def translate(args, tr_client):
     observables = extract_observables(
-        args['content'], tr_client, exclude=args['exclude']
+        args.pop('content'), tr_client, exclude=args.pop('exclude')
     )
 
     session_ = Session(
-        external_id_prefix=args['external_id_prefix'],
-        source=args['source'],
-        source_uri=args['source_uri']
+        external_id_prefix=args.pop('external_id_prefix'),
+        source=args.pop('source'),
+        source_uri=args.pop('source_uri')
     )
-    return build_bundle(observables, args['title'], session_)
+    return build_bundle(observables, session_, args)
 
 
 def extract_observables(content, tr_client, exclude=None):
@@ -46,9 +50,18 @@ def extract_observables(content, tr_client, exclude=None):
     return observables
 
 
-def build_bundle(observables, title, session_):
+def build_bundle(observables, session_, customized_fields=None):
     def format_time(time):
         return f'{time.isoformat(timespec="seconds")}Z'
+
+    def get_predefined_fields(defaults, entity):
+        return {
+            **defaults,
+            **{
+                k: v for k, v in customized_fields.items()
+                if k in getattr(entity, 'schema')._declared_fields
+            }
+        }
 
     try:
         with session_.set():
@@ -58,33 +71,26 @@ def build_bundle(observables, title, session_):
             bundle = Bundle()
 
             sighting = Sighting(
-                confidence='High',
-                count=1,
+                **get_predefined_fields(SIGHTING_DEFAULTS, Sighting),
                 observed_time=ObservedTime(
                     start_time=now_str,
                     end_time=now_str,
                 ),
                 observables=[
                     Observable(**ob) for ob in observables
-                ],
-                title=title,
-                internal=False
+                ]
             )
-
             bundle.add_sighting(sighting)
 
             indicator = Indicator(
-                producer=DEFAULT_SOURCE,
+                **get_predefined_fields(INDICATOR_DEFAULTS, Indicator),
                 valid_time=ValidTime(
                     start_time=now_str,
                     end_time=format_time(
-                        now + timedelta(NUMBER_OF_DAYS_INDICATOR_IS_VALID)
+                        now + INDICATOR_VALIDITY_INTERVAL
                     ),
-                ),
-                confidence='High',
-                title=title,
+                )
             )
-
             bundle.add_indicator(indicator)
 
             relationship_from_sighting_to_indicator = Relationship(
@@ -93,7 +99,6 @@ def build_bundle(observables, title, session_):
                 target_ref=indicator,
                 short_description=f'{sighting} is member-of {indicator}',
             )
-
             bundle.add_relationship(relationship_from_sighting_to_indicator)
 
             return bundle

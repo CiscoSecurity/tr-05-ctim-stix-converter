@@ -1,10 +1,10 @@
-from marshmallow import ValidationError, Schema, fields
+from marshmallow import ValidationError, Schema, fields, INCLUDE, pre_load
 
 from api.constants import (
     DEFAULT_SOURCE,
     DEFAULT_SOURCE_URI,
     DEFAULT_EXTERNAL_ID_PREFIX,
-    DEFAULT_TITLE
+    NON_CUSTOMIZABLE_FIELDS
 )
 
 
@@ -18,10 +18,10 @@ class ArgumentsSchema(Schema):
         validate=validate_string,
         required=True
     )
-    title = fields.String(
-        validate=validate_string,
+    exclude = fields.List(
+        fields.String(validate=validate_string),
         required=False,
-        missing=DEFAULT_TITLE
+        missing=[]
     )
     source = fields.String(
         validate=validate_string,
@@ -38,8 +38,14 @@ class ArgumentsSchema(Schema):
         required=False,
         missing=DEFAULT_EXTERNAL_ID_PREFIX
     )
-    exclude = fields.List(
-        fields.String(validate=validate_string),
-        required=False,
-        missing=[]
-    )
+
+    @pre_load
+    def check_forbidden_fields(self, input, **kwargs):
+        if set(NON_CUSTOMIZABLE_FIELDS).intersection(input.keys()):
+            raise ValidationError(
+                f'Fields: {", ".join(NON_CUSTOMIZABLE_FIELDS)}'
+                ' are not allowed to customize.'
+            )
+
+    class Meta:
+        unknown = INCLUDE
