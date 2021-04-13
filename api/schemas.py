@@ -46,6 +46,7 @@ class ArgumentsSchema(Schema):
                 f'Fields: {", ".join(NON_CUSTOMIZABLE_FIELDS)}'
                 ' are not allowed to customize.'
             )
+        return input
 
     class Meta:
         unknown = INCLUDE

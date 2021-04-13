@@ -6,7 +6,6 @@ from bundlebuilder.models import (
     Indicator, ValidTime, Relationship
 )
 from bundlebuilder.session import Session
-from requests.exceptions import HTTPError
 
 from api.constants import (
     INDICATOR_VALIDITY_INTERVAL,
@@ -15,8 +14,7 @@ from api.constants import (
 )
 from api.exceptions import (
     NoObservablesFoundError,
-    BundleBuilderError,
-    TRError
+    BundleBuilderError
 )
 
 
@@ -35,14 +33,11 @@ def translate(args, tr_client):
 
 def extract_observables(content, tr_client, exclude=None):
     exclude = exclude or []
-    try:
-        observables = tr_client.inspect.inspect({'content': content})
-        observables = [
-            ob for ob in observables if ob['value'] not in exclude
-        ]
 
-    except HTTPError as error:
-        raise TRError(error)
+    observables = tr_client.inspect.inspect({'content': content})
+    observables = [
+        ob for ob in observables if ob['value'] not in exclude
+    ]
 
     if not observables:
         raise NoObservablesFoundError()

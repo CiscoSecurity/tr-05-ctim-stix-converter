@@ -1,37 +1,31 @@
 from werkzeug.exceptions import BadRequest, UnprocessableEntity
 
 
-class BaseTranslatorError(Exception):
-    @property
-    def json(self):
-        return str(self)
-
-
-class InvalidArgumentError(BaseTranslatorError, BadRequest):
+class InvalidArgumentError(BadRequest):
     def __init__(self, error):
         super().__init__(error)
 
 
-class CredentialsNotSetError(BaseTranslatorError, BadRequest):
+class CredentialsNotSetError(BadRequest):
     def __init__(self, *args):
         super().__init__(
             'Bad Request: Missing credentials.'
         )
 
 
-class InvalidRegionError(BaseTranslatorError, BadRequest):
+class InvalidRegionError(BadRequest):
     def __init__(self, *args):
         super().__init__(
             'Bad Request: Invalid region.'
         )
 
 
-class NoObservablesFoundError(BaseTranslatorError, UnprocessableEntity):
+class NoObservablesFoundError(UnprocessableEntity):
     def __init__(self):
         super().__init__('No observables found.')
 
 
-class BundleBuilderError(BaseTranslatorError, UnprocessableEntity):
+class BundleBuilderError(UnprocessableEntity):
     def __init__(self, error):
         super().__init__(f'Error occurred while constructing bundle: {error}')
 
