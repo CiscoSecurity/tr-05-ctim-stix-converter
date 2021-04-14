@@ -29,6 +29,7 @@ def get_json(schema=None):
 
 def get_tr_client():
     try:
+        assert request.authorization
         client_id = request.authorization.username
         client_password = request.authorization.password
         assert client_id and client_password

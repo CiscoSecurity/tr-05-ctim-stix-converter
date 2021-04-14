@@ -58,6 +58,7 @@ def build_bundle(observables, session_, customized_fields=None):
             }
         }
 
+    customized_fields = {} if customized_fields is None else customized_fields
     try:
         with session_.set():
             now = datetime.now()

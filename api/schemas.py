@@ -40,13 +40,14 @@ class ArgumentsSchema(Schema):
     )
 
     @pre_load
-    def check_forbidden_fields(self, input, **kwargs):
-        if set(NON_CUSTOMIZABLE_FIELDS).intersection(input.keys()):
+    def check_forbidden_fields(self, data, **kwargs):
+        data = {} if data is None else data
+        if set(NON_CUSTOMIZABLE_FIELDS).intersection(data.keys()):
             raise ValidationError(
                 f'Fields: {", ".join(NON_CUSTOMIZABLE_FIELDS)}'
                 ' are not allowed to customize.'
             )
-        return input
+        return data
 
     class Meta:
         unknown = INCLUDE

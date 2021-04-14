@@ -3,13 +3,92 @@ from unittest.mock import MagicMock, patch
 
 from bundlebuilder.exceptions import ValidationError, SchemaError
 from pytest import raises, mark
+from requests.exceptions import (
+    ConnectionError,
+    Timeout as TimeoutError,
+    HTTPError
+)
 
-from exceptions import BundleBuilderError
-from translator import build_bundle
+from api.exceptions import BundleBuilderError
+from api.exceptions import (
+    NoObservablesFoundError
+)
+from api.translator import build_bundle
+from api.translator import extract_observables, translate
 
-TEST_FILE = 'test_file.xml'
+CONTENT = 'data'
 
-EXPECTED_RESULT = {
+
+def test_translate():
+    with patch('api.translator.extract_observables') as extract_mock, \
+            patch('api.translator.Session') as session_mock, \
+            patch('api.translator.build_bundle') as build_bundle_mock:
+        args = {
+            'content': CONTENT, 'source': 's', 'source_uri': 'su',
+            'external_id_prefix': 'p', 'exclude': ['f.com'], 'title': 't'
+        }
+        tr_client_mock = MagicMock()
+        extract_mock.return_value = [
+            {'value': 'a.com', 'type': 'domain'},
+            {'value': '1.1.1.1', 'type': 'ip'}
+        ]
+        build_bundle_mock.return_value = 'Bundle'
+
+        result = translate(args, tr_client_mock)
+
+        assert result == 'Bundle'
+        extract_mock.assert_called_once_with(
+            CONTENT, tr_client_mock, exclude=['f.com']
+        )
+        session_mock.assert_called_once_with(
+            external_id_prefix='p', source='s', source_uri='su'
+        )
+        build_bundle_mock.assert_called_once_with(
+            [{'value': 'a.com', 'type': 'domain'},
+             {'value': '1.1.1.1', 'type': 'ip'}],
+            session_mock(),
+            {'title': 't'}
+        )
+
+
+def test_extract_observables_success():
+    tr_client_mock = MagicMock()
+    tr_client_mock.inspect.inspect = MagicMock(
+        return_value=[{'value': 'a', 'type': 't'}, {'value': 'b', 'type': 't'}]
+    )
+
+    result = extract_observables(CONTENT, tr_client_mock, exclude=['a'])
+
+    tr_client_mock.inspect.inspect.assert_called_with({'content': CONTENT})
+    assert result == [{'value': 'b', 'type': 't'}]
+
+
+def test_extract_observables_no_observables_found():
+    tr_client_mock = MagicMock()
+    tr_client_mock.inspect.inspect = MagicMock(
+        return_value=[{'value': 'a', 'type': 't'}]
+    )
+
+    with raises(NoObservablesFoundError):
+        extract_observables(CONTENT, tr_client_mock, exclude=['a'])
+
+    tr_client_mock.inspect.inspect.assert_called_with({'content': CONTENT})
+
+
+@mark.parametrize(
+    'error', (TimeoutError, ConnectionError, HTTPError), ids=str(),
+)
+def test_extract_observables_tr_communication_failed(error):
+    tr_client_mock = MagicMock()
+    tr_client_mock.inspect.inspect = MagicMock(side_effect=error())
+
+    with raises(error):
+        extract_observables(CONTENT, tr_client_mock)
+
+    tr_client_mock.inspect.inspect.assert_called_with({'content': CONTENT})
+
+
+EXPECTED_BUNDLE = {
     'external_ids': [
         'ctim-bundle-builder-bundle-6278ac188151f76261bae1'
         '40f463ef7168804b3035c28a46969b1df55e753591'
@@ -18,15 +97,15 @@ EXPECTED_RESULT = {
         {
             'confidence': 'High',
             'external_ids': [
-                'ctim-bundle-builder-indicator-88a4ad9e43757ec'
-                '70f338dfc953aeefdb23f64c57967f47405d31bb0932fd462'
+                'ctim-bundle-builder-indicator-ed480c2637ff25bdef65de'
+                '7ecb447dab4c48450928008dcacf9c2aa0ce74ff80'
             ],
             'producer': 'CTIM-STIX Translator',
             'schema_version': '1.0.17',
             'source': 'Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
-            'title': 'Found in test_file.xml',
+            'title': 'Generated with CTIM-STIX Translator',
             'type': 'indicator'
         }
     ],
@@ -51,10 +130,10 @@ EXPECTED_RESULT = {
             'confidence': 'High',
             'count': 1,
             'external_ids': [
-                'ctim-bundle-builder-sighting-1291694389eba6e71a9874cce1d9a01'
-                '86dff9288b4a62042027c4073c41c4164',
-                'ctim-bundle-builder-sighting-f9cce66af5669180a88d8277e58b'
-                'b58103d2a49e618e34ce49bdbf570fa0ddf3'
+                'ctim-bundle-builder-sighting-500f39d0fa717a2232'
+                'ecb9df3b948cb1f9232d3b006d3a5d37c003e8a9842310',
+                'ctim-bundle-builder-sighting-aba5a953be7c30c66465242ea9'
+                'c6b31e270d8ce7118795692b75b0cc6bcaac9d'
             ],
             'internal': False,
             'observables': [
@@ -71,7 +150,7 @@ EXPECTED_RESULT = {
             'source': 'Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
-            'title': 'Found in test_file.xml',
+            'title': 'Generated with CTIM-STIX Translator',
             'type': 'sighting'
         }
     ],
@@ -106,7 +185,7 @@ def test_build_bundle():
             {'value': 'a.com', 'type': 'domain'},
             {'value': '1.1.1.1', 'type': 'ip'}
         ],
-        TEST_FILE, session_
+        session_
     )
     result = result.json
 
@@ -123,7 +202,8 @@ def test_build_bundle():
         result['indicators'][0], 'valid_time',
         start_time, start_time + timedelta(30)
     )
-    assert result == EXPECTED_RESULT
+
+    assert result == EXPECTED_BUNDLE
 
 
 @mark.parametrize(
@@ -131,11 +211,8 @@ def test_build_bundle():
 )
 def test_build_bundle_failed(error):
     session_ = MagicMock()
-    with patch('translator.Sighting') as sighting_mock:
+    with patch('api.translator.Sighting') as sighting_mock:
         sighting_mock.side_effect = error()
 
         with raises(BundleBuilderError):
-            build_bundle(
-                [{'value': 'a.com', 'type': 'domain'}],
-                TEST_FILE, session_
-            )
+            build_bundle([{'value': 'a.com', 'type': 'domain'}], session_)
