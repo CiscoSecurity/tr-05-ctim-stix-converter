@@ -1,2 +1,2 @@
 class Config:
-    NUMBER_OF_DAYS_INDICATOR_IS_VALID = 30
+    pass

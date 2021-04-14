@@ -12,7 +12,7 @@ from api.exceptions import (
 def get_json(schema=None):
     """
     Parse the incoming request's data as JSON.
-    Validate and deserialize it with specified schema if specified.
+    Validate and deserialize it with schema if specified.
     """
 
     data = request.get_json(force=True, silent=True, cache=False)
