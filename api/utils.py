@@ -27,6 +27,24 @@ def get_json(schema=None):
     return schema.load(data)
 
 
+def get_form_data(schema=None, data=None):
+    """
+    Parse the incoming request's data as JSON.
+    Validate and deserialize it with schema if specified.
+    """
+
+    data = data or dict(request.form)
+
+    if schema is None:
+        return data
+
+    message = schema.validate(data)
+    if message:
+        raise InvalidArgumentError(message)
+
+    return schema.load(data)
+
+
 def get_tr_client():
     try:
         assert request.authorization

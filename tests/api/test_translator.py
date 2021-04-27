@@ -102,7 +102,7 @@ EXPECTED_BUNDLE = {
             ],
             'producer': 'CTIM-STIX Translator',
             'schema_version': '1.0.17',
-            'source': 'Threat Response CTIM Bundle Builder',
+            'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
             'title': 'Generated with CTIM-STIX Translator',
@@ -112,13 +112,13 @@ EXPECTED_BUNDLE = {
     'relationships': [
         {
             'external_ids': [
-                'ctim-bundle-builder-relationship-cef20b4addbbc18a7385a0b3ffb9'
-                '848805efc0d8294dc064485221efc7fef668'
+                'ctim-bundle-builder-relationship-79137665a3eaade'
+                '02dd56377607a2b82ecbbdce03c239cd0278712451c7dbe0b'
             ],
             'relationship_type': 'member-of',
             'schema_version': '1.0.17',
             'short_description': 'Sighting is member-of Indicator',
-            'source': 'Threat Response CTIM Bundle Builder',
+            'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
             'type': 'relationship'
@@ -147,14 +147,14 @@ EXPECTED_BUNDLE = {
                 }
             ],
             'schema_version': '1.0.17',
-            'source': 'Threat Response CTIM Bundle Builder',
+            'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
             'title': 'Generated with CTIM-STIX Translator',
             'type': 'sighting'
         }
     ],
-    'source': 'Threat Response CTIM Bundle Builder',
+    'source': 'SecureX Threat Response CTIM Bundle Builder',
     'source_uri': 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
     'type': 'bundle'
 }
