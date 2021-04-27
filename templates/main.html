@@ -1,19 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-   <body>
-      <h1>STIX-CTIM Converter</h1>
-
-      <hr>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-
+{% extends "base.html" %}
+{% block content %}
       <button type="button" onclick="window.location.href='{{ url_for( '.authorize') }}';">Authorize</button>
 
       <form action="/ui/translate" method="post" novalidate>
@@ -32,5 +18,4 @@
         </p>
         <p>{{ submit_form.submit() }}</p>
     </form>
-   </body>
-</html>
+{% endblock %}
