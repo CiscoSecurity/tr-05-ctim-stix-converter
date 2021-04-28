@@ -1,16 +1,77 @@
-from marshmallow import ValidationError, Schema, fields, INCLUDE, pre_load
+from marshmallow import ValidationError, Schema, fields, EXCLUDE
 
 from api.constants import (
     DEFAULT_SOURCE,
     DEFAULT_SOURCE_URI,
     DEFAULT_EXTERNAL_ID_PREFIX,
-    NON_CUSTOMIZABLE_FIELDS
+    DEFAULT_CONFIDENCE,
+    DEFAULT_PRODUCER,
+    DEFAULT_TITLE
 )
 
 
 def validate_string(value):
     if value == '':
         raise ValidationError('Field may not be blank.')
+
+
+def validate_positive(value):
+    if value <= 0:
+        raise ValidationError('Field should contain positive integer.')
+
+
+class CommonEntitySchema(Schema):
+    title = fields.String(
+        validate=validate_string,
+        required=False,
+        missing=DEFAULT_TITLE
+    )
+    short_description = fields.String(
+        validate=validate_string,
+        required=False
+    )
+    description = fields.String(
+        validate=validate_string,
+        required=False
+    )
+    confidence = fields.String(
+        validate=validate_string,
+        required=False,
+        missing=DEFAULT_CONFIDENCE
+    )
+    severity = fields.String(
+        validate=validate_string,
+        required=False
+    )
+
+
+class IndicatorSchema(CommonEntitySchema):
+    producer = fields.String(
+        validate=validate_string,
+        required=False,
+        missing=DEFAULT_PRODUCER
+    )
+
+    indicator_type = fields.String(
+        validate=validate_string,
+        required=False
+    )
+
+
+class SightingSchema(CommonEntitySchema):
+    count = fields.Integer(
+        validate=validate_positive,
+        required=False,
+        missing=1
+    )
+    internal = fields.Boolean(
+        required=False,
+        missing=False
+    )
+    sensor = fields.String(
+        validate=validate_string,
+        required=False
+    )
 
 
 class ArgumentsSchema(Schema):
@@ -38,16 +99,16 @@ class ArgumentsSchema(Schema):
         required=False,
         missing=DEFAULT_EXTERNAL_ID_PREFIX
     )
-
-    @pre_load
-    def check_forbidden_fields(self, data, **kwargs):
-        data = {} if data is None else data
-        if set(NON_CUSTOMIZABLE_FIELDS).intersection(data.keys()):
-            raise ValidationError(
-                f'Fields: {", ".join(NON_CUSTOMIZABLE_FIELDS)}'
-                ' are not allowed to customize.'
-            )
-        return data
+    indicator = fields.Nested(
+        IndicatorSchema,
+        required=False,
+        missing=IndicatorSchema().load({})
+    )
+    sighting = fields.Nested(
+        SightingSchema,
+        required=False,
+        missing=SightingSchema().load({})
+    )
 
     class Meta:
-        unknown = INCLUDE
+        unknown = EXCLUDE
