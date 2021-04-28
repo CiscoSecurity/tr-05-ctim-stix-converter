@@ -1,9 +1,10 @@
 import json
-from collections import namedtuple
 from copy import deepcopy
 
-from flask import Blueprint, render_template, request, session, redirect, \
+from flask import (
+    Blueprint, render_template, request, session, redirect,
     url_for, flash
+)
 from threatresponse import ThreatResponse
 from threatresponse.exceptions import RegionError
 
@@ -11,7 +12,7 @@ from api import translator
 from api.exceptions import InvalidRegionError
 from api.schemas import ArgumentsSchema
 from api.utils import get_form_data
-from forms import TranslateForm, SubmitForm, AuthorizeForm
+from forms import AuthorizeForm, ProcessForm
 
 ui_api = Blueprint('ui', __name__)  # ToDo rename!!!!
 
@@ -28,22 +29,25 @@ def get_tr_client():
         raise InvalidRegionError(error)
 
 
-@ui_api.route('/', methods=['GET'])
-def main():
-    Context = namedtuple('Context',
-                         'client_password client_id region content bundle')
-    context = Context(
-        client_password=session.get('client_password'),
-        client_id=session.get('client_id'),
-        region=session.get('region'),
-        content=session.get('content'),
-        bundle=session.get('bundle'),
-    )
+@ui_api.route('/', methods=['GET', 'POST'])
+def process():
+    form = ProcessForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        tr_client = get_tr_client()
+
+        if form.translate.data:
+            data = get_form_data(schema=ArgumentsSchema(), data=form.data)
+            bundle = translator.translate(deepcopy(data), tr_client)
+            form.bundle.data = json.dumps(bundle.json, indent=4, sort_keys=True)
+
+        elif form.submit.data:
+            bundle = json.loads(request.form.get('bundle'))
+            result = tr_client.private_intel.bundle.import_.post(bundle)
+            flash(str(result))
+
     return render_template(
         'main.html',
-        authorize_form=AuthorizeForm(obj=context),
-        translate_form=TranslateForm(obj=context),
-        submit_form=SubmitForm(obj=context),
+        form=form,
         authorized=session.get('authorized')
     )
 
@@ -65,33 +69,6 @@ def authorize():
 
             session['authorized'] = True
 
-            return redirect(url_for('.main'))
+            return redirect(url_for('.process'))
 
     return render_template('authorize.html', authorize_form=form)
-
-
-@ui_api.route('/ui/translate', methods=['POST'])
-def translate():
-    form = TranslateForm()
-    if form.validate_on_submit():
-        tr_client = get_tr_client()
-
-        data = get_form_data(schema=ArgumentsSchema(), data=form.data)
-        bundle = translator.translate(deepcopy(data), tr_client)
-
-        session['bundle'] = json.dumps(bundle.json, indent=4, sort_keys=True)
-        session['content'] = data['content']
-
-    return redirect(url_for('.main'))
-
-
-@ui_api.route('/ui/submit', methods=['POST'])
-def submit():
-    form = SubmitForm()
-    if form.validate_on_submit():
-        tr_client = get_tr_client()
-        bundle = json.loads(request.form.get('bundle'))
-        result = tr_client.private_intel.bundle.import_.post(bundle)
-        flash(str(result))
-
-    return redirect(url_for('.main'))

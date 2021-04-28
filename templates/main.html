@@ -2,26 +2,25 @@
 {% block content %}
       <button type="button" style="border-color: {{'red' if not authorized else 'green'}}" onclick="window.location.href='{{ url_for( '.authorize') }}';">Authorize</button>
 
-      <form action="/ui/translate" method="post" novalidate>
-        {{ translate_form.hidden_tag() }}
+      <form action="/" method="post" novalidate>
+        {{ form.hidden_tag() }}
         <p>
-            {{ translate_form.content.label }}<br>
-            {{ translate_form.content(rows='20',cols='150') }}
-            {% for error in translate_form.content.errors %}
+            {{ form.content.label }}<br>
+            {{ form.content(rows='20',cols='150') }}
+            {% for error in form.content.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
-        <p>{{ translate_form.submit() }}</p>
-      </form>
-      <form action="/ui/submit" method="post" novalidate>
-        {{ submit_form.hidden_tag() }}
+        <p>{{ form.translate() }}</p>
         <p>
-            {{ submit_form.bundle.label }}<br>
-            {{ submit_form.bundle(rows='20',cols='150') }}
-            {% for error in submit_form.bundle.errors %}
+            {{ form.bundle.label }}<br>
+            {{ form.bundle(rows='20',cols='150') }}
+            {% for error in form.bundle.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
-        <p>{{ submit_form.submit() }}</p>
+          {% if (form.bundle.data) %}
+            <p>{{ form.submit() }}</p>
+          {% endif %}
     </form>
 {% endblock %}

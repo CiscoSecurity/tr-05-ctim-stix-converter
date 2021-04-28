@@ -13,11 +13,8 @@ class AuthorizeForm(FlaskForm):
     submit = SubmitField('Authorize')
 
 
-class TranslateForm(FlaskForm):
+class ProcessForm(FlaskForm):
     content = TextAreaField('STIX Data', validators=[DataRequired()])
-    submit = SubmitField('Translate')
-
-
-class SubmitForm(FlaskForm):
-    bundle = TextAreaField('CTIM Data', validators=[DataRequired()], render_kw={'readonly': True})
+    translate = SubmitField('Translate')
+    bundle = TextAreaField('CTIM Data', render_kw={'readonly': True})
     submit = SubmitField('Submit to Private Intel')
