@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-      <button type="button" onclick="window.location.href='{{ url_for( '.authorize') }}';">Authorize</button>
+      <button type="button" style="border-color: {{'red' if not authorized else 'green'}}" onclick="window.location.href='{{ url_for( '.authorize') }}';">Authorize</button>
 
       <form action="/ui/translate" method="post" novalidate>
         {{ translate_form.hidden_tag() }}
         <p>
             {{ translate_form.content.label }}<br>
             {{ translate_form.content(rows='20',cols='150') }}
+            {% for error in translate_form.content.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </p>
         <p>{{ translate_form.submit() }}</p>
       </form>
@@ -15,6 +18,9 @@
         <p>
             {{ submit_form.bundle.label }}<br>
             {{ submit_form.bundle(rows='20',cols='150') }}
+            {% for error in submit_form.bundle.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </p>
         <p>{{ submit_form.submit() }}</p>
     </form>

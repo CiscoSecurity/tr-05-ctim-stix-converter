@@ -43,7 +43,8 @@ def main():
         'main.html',
         authorize_form=AuthorizeForm(obj=context),
         translate_form=TranslateForm(obj=context),
-        submit_form=SubmitForm(obj=context)
+        submit_form=SubmitForm(obj=context),
+        authorized=session.get('authorized')
     )
 
 
@@ -61,6 +62,8 @@ def authorize():
             session['region'] = region
 
             get_tr_client()
+
+            session['authorized'] = True
 
             return redirect(url_for('.main'))
 

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, flash, redirect, url_for
 from requests import HTTPError
 
 from api.exceptions import TRError
@@ -31,6 +31,10 @@ def handle_error(exception):
         exception.__class__.__module__,
         exception.__class__.__name__,
     ])
+
+    if request.blueprint == 'ui':
+        flash(message)
+        return redirect(url_for(request.endpoint))
 
     response = jsonify(code=code, message=message, reason=reason)
     return response, code
