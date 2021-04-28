@@ -1,28 +1,13 @@
 {% extends "base.html" %}
+{% from "_formhelpers.html" import render_string_field %}
+{% from "_formhelpers.html" import render_select_field %}
+
 {% block content %}
       <form action="/authorize" method="post" novalidate>
-         {{ authorize_form.hidden_tag() }}
-        <p>
-            {{ authorize_form.client_id.label }}<br>
-            {{ authorize_form.client_id(size=64) }}
-            {% for error in authorize_form.client_id.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ authorize_form.client_password.label }}<br>
-            {{ authorize_form.client_password(size=64) }}
-            {% for error in authorize_form.client_password.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-          <p>
-            {{ authorize_form.region.label }}<br>
-            {{ authorize_form.region(cols='20') }}
-            {% for error in authorize_form.region.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ authorize_form.submit() }}</p>
+         {{ form.hidden_tag() }}
+         {{ render_string_field(form.client_id) }}
+         {{ render_string_field(form.client_password) }}
+         {{ render_select_field(form.region) }}
+        <p>{{ form.submit() }}</p>
       </form>
 {% endblock %}

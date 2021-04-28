@@ -44,17 +44,15 @@ class CommonEntitySchema(Schema):
         required=False
     )
 
+    class Meta:
+        unknown = EXCLUDE
+
 
 class IndicatorSchema(CommonEntitySchema):
     producer = fields.String(
         validate=validate_string,
         required=False,
         missing=DEFAULT_PRODUCER
-    )
-
-    indicator_type = fields.String(
-        validate=validate_string,
-        required=False
     )
 
 

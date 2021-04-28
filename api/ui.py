@@ -21,7 +21,13 @@ def process():
         tr_client = get_tr_client(session_=session)
 
         if form.translate.data:
-            data = get_form_data(schema=ArgumentsSchema(), data=form.data)
+
+            data = {}
+            data['indicator'] = {k: v for k, v in form.data.pop('indicator', {}).items() if v}
+            data['sighting'] = {k: v for k, v in form.data.pop('sighting', {}).items() if v}
+            data = {**form.data, **data}
+            data = get_form_data(schema=ArgumentsSchema(), data=data)
+
             bundle = translator.translate(deepcopy(data), tr_client)
             form.bundle.data = json.dumps(bundle.json, indent=4, sort_keys=True)
 
@@ -51,4 +57,4 @@ def authorize():
 
             return redirect(url_for('.process'))
 
-    return render_template('authorize.html', authorize_form=form)
+    return render_template('authorize.html', form=form)
