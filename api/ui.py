@@ -5,35 +5,20 @@ from flask import (
     Blueprint, render_template, request, session, redirect,
     url_for, flash
 )
-from threatresponse import ThreatResponse
-from threatresponse.exceptions import RegionError
 
 from api import translator
-from api.exceptions import InvalidRegionError
 from api.schemas import ArgumentsSchema
-from api.utils import get_form_data
+from api.utils import get_form_data, get_tr_client
 from forms import AuthorizeForm, ProcessForm
 
-ui_api = Blueprint('ui', __name__)  # ToDo rename!!!!
+ui = Blueprint('ui', __name__)
 
 
-def get_tr_client():
-    try:
-        return ThreatResponse(
-            client_id=session.get('client_id'),
-            client_password=session.get('client_password'),
-            region=session.get('region'),
-        )
-
-    except RegionError as error:
-        raise InvalidRegionError(error)
-
-
-@ui_api.route('/', methods=['GET', 'POST'])
+@ui.route('/', methods=['GET', 'POST'])
 def process():
     form = ProcessForm()
     if request.method == 'POST' and form.validate_on_submit():
-        tr_client = get_tr_client()
+        tr_client = get_tr_client(session_=session)
 
         if form.translate.data:
             data = get_form_data(schema=ArgumentsSchema(), data=form.data)
@@ -52,21 +37,16 @@ def process():
     )
 
 
-@ui_api.route('/ui/authorize', methods=['GET', 'POST'])
+@ui.route('/authorize', methods=['GET', 'POST'])
 def authorize():
     form = AuthorizeForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            client_id = form.client_id.data
-            client_password = form.client_password.data
-            region = form.region.data
+            session['client_id'] = form.client_id.data
+            session['client_password'] = form.client_password.data
+            session['region'] = form.region.data
 
-            session['client_id'] = client_id
-            session['client_password'] = client_password
-            session['region'] = region
-
-            get_tr_client()
-
+            _ = get_tr_client(session_=session)
             session['authorized'] = True
 
             return redirect(url_for('.process'))

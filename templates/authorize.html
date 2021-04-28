@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-      <form action="/ui/authorize" method="post" novalidate>
+      <form action="/authorize" method="post" novalidate>
          {{ authorize_form.hidden_tag() }}
         <p>
             {{ authorize_form.client_id.label }}<br>

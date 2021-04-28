@@ -45,17 +45,23 @@ def get_form_data(schema=None, data=None):
     return schema.load(data)
 
 
-def get_tr_client():
+def get_tr_client(session_=None):
     try:
-        assert request.authorization
-        client_id = request.authorization.username
-        client_password = request.authorization.password
-        assert client_id and client_password
+        if session_:
+            client_id = session_.get('client_id')
+            client_password = session_.get('client_password')
+            region = session_.get('region')
+        else:
+            assert request.authorization
+            client_id = request.authorization.username
+            client_password = request.authorization.password
+            region = request.args.get('region')
+            assert client_id and client_password
 
         return ThreatResponse(
             client_id=client_id,
             client_password=client_password,
-            region=request.args.get('region')
+            region=region
         )
 
     except AssertionError as error:
