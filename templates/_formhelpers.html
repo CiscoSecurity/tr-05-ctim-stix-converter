@@ -1,21 +1,29 @@
 {% macro render_form_errors(field) %}
         {% for error in field.errors %}
-            <span style="color: red;">[{{ error }}]</span>
+            <span style="color: #ff0000;">[{{ error }}]</span>
         {% endfor %}
 {% endmacro %}
 
-{% macro render_string_field(field, size=64) %}
-    <p>
-        {{ field.label }}
-        {{ field(size=size) }}
-        {{ render_form_errors(field) }}
-    </p>
+{% macro render_text_area(field) %}
+  <p>
+    <h2>{{ field.label }}</h2>
+     {{ field(rows='15',cols='150') }}
+     {{ render_form_errors(field) }}
+  </p>
+
 {% endmacro %}
 
-{% macro render_select_field(field, cols='20') %}
-     <p>
-         {{ field.label }}
-         {{ field(cols=cols) }}
-         {{ render_form_errors(field) }}
-     </p>
+{% macro render_field(field) %}
+
+    <div class="row">
+    <div class="col-15">
+      {{ field.label }}
+    </div>
+    <div class="col-75">
+      {{ field() }}
+        {{ render_form_errors(field) }}
+    </div>
+  </div>
+
 {% endmacro %}
+

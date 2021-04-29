@@ -69,5 +69,5 @@ class ProcessForm(FlaskForm):
 
     translate = SubmitField('Translate')
 
-    bundle = TextAreaField('CTIM Data', render_kw={'readonly': True})
+    bundle = TextAreaField('CTIM Bundle', render_kw={'readonly': True})
     submit = SubmitField('Submit to Private Intel')

@@ -1,13 +1,12 @@
 {% extends "base.html" %}
-{% from "_formhelpers.html" import render_string_field %}
-{% from "_formhelpers.html" import render_select_field %}
+{% from "_formhelpers.html" import render_field %}
 
 {% block content %}
       <form action="/authorize" method="post" novalidate>
          {{ form.hidden_tag() }}
-         {{ render_string_field(form.client_id) }}
-         {{ render_string_field(form.client_password) }}
-         {{ render_select_field(form.region) }}
+         {{ render_field(form.client_id) }}
+         {{ render_field(form.client_password) }}
+         {{ render_field(form.region) }}
         <p>{{ form.submit() }}</p>
       </form>
 {% endblock %}

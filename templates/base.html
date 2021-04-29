@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>STIX-CTIM Converter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
    <body>
+   <div class="container">
       <h1>STIX-CTIM Converter</h1>
 
       <hr>
@@ -19,5 +22,7 @@
         {% endwith %}
 
       {% block content %}{% endblock %}
+   </div>
    </body>
+
 </html>
