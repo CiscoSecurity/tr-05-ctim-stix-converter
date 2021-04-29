@@ -24,7 +24,6 @@ class CommonEntityForm(FlaskForm):
         'Title', validators=[DataRequired()], default=DEFAULT_TITLE
     )
     short_description = StringField('Short Description')
-    # ToDo:description = StringField('Description')
     confidence = SelectField(
         'Confidence', validators=[DataRequired()], choices=CONFIDENCE_CHOICES,
         default=DEFAULT_CONFIDENCE
@@ -47,11 +46,12 @@ class SightingForm(CommonEntityForm):
     internal = BooleanField(
         'Internal', default=DEFAULT_INTERNAL
     )
-    # ToDo: sensor = SelectField('Sensor')
 
 
 class ProcessForm(FlaskForm):
     content = TextAreaField('STIX Data', validators=[DataRequired()])
+
+    exclude = StringField('Exclude')
 
     external_id_prefix = StringField(
         'External ID Prefix', validators=[DataRequired()],
@@ -67,7 +67,7 @@ class ProcessForm(FlaskForm):
     indicator = FormField(IndicatorForm)
     sighting = FormField(SightingForm)
 
-    translate = SubmitField('Translate')
+    translate = SubmitField('Convert')
 
     bundle = TextAreaField('CTIM Bundle', render_kw={'readonly': True})
     submit = SubmitField('Submit to Private Intel')
