@@ -14,7 +14,7 @@ from api.exceptions import (
 )
 
 
-def translate(args, tr_client):
+def convert(args, tr_client):
     observables = extract_observables(
         args.pop('content'), tr_client, exclude=args.pop('exclude')
     )

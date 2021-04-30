@@ -3,7 +3,7 @@ from requests import HTTPError
 
 from api.exceptions import TRError
 from api.submit import submit_api
-from api.translate import translate_api
+from api.convert import convert_api
 from api.ui import ui
 
 app = Flask(__name__)
@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 app.config.from_object('config.Config')
 
-app.register_blueprint(translate_api)
+app.register_blueprint(convert_api)
 app.register_blueprint(submit_api)
 app.register_blueprint(ui)
 

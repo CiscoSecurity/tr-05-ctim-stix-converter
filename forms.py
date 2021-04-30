@@ -64,6 +64,6 @@ class MainForm(FlaskForm):
     )
     indicator = FormField(IndicatorForm)
     sighting = FormField(SightingForm)
-    translate = SubmitField('Convert')
+    convert = SubmitField('Convert')
     bundle = TextAreaField('CTIM Bundle', render_kw={'readonly': True})
     submit = SubmitField('Submit to Private Intelligence')

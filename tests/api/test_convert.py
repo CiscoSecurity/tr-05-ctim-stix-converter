@@ -5,14 +5,14 @@ from pytest import mark
 
 from api.exceptions import BundleBuilderError
 
-ROUT = '/translate'
+ROUT = '/convert'
 BODY = {'content': 'content'}
 
 
-def test_translate_success(client, authorization):
-    with patch('api.translator.translate') as translate_mock, \
+def test_convert_success(client, authorization):
+    with patch('api.convertor.convert') as convert_mock, \
             patch('api.utils.ThreatResponse') as tr_mock:
-        translate_mock.return_value = MagicMock(json={'type': 'bundle'})
+        convert_mock.return_value = MagicMock(json={'type': 'bundle'})
         tr_mock.return_value = MagicMock()
 
         response = client.post(ROUT, headers=authorization(), json=BODY)
@@ -34,7 +34,7 @@ def test_translate_success(client, authorization):
     ),
     ids=str
 )
-def test_translate_bad_request(
+def test_convert_bad_request(
         client, authorization, request_body, expected_message, error_response
 ):
     response = client.post(ROUT, headers=authorization(), json=request_body)
@@ -45,10 +45,10 @@ def test_translate_bad_request(
     )
 
 
-def test_translate_bundle_builder_error(client, authorization, error_response):
-    with patch('api.translator.translate') as translate_mock, \
+def test_convert_bundle_builder_error(client, authorization, error_response):
+    with patch('api.convertor.convert') as convert_mock, \
             patch('api.utils.ThreatResponse') as tr_mock:
-        translate_mock.side_effect = BundleBuilderError(Exception())
+        convert_mock.side_effect = BundleBuilderError(Exception())
         tr_mock.return_value = MagicMock()
 
         response = client.post(ROUT, headers=authorization(), json=BODY)

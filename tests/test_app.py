@@ -12,14 +12,14 @@ def calls():
     yield Call('PUT', '/put', HTTPStatus.NOT_FOUND)
     yield Call('DELETE', '/delete', HTTPStatus.NOT_FOUND)
 
-    yield Call('GET', '/translate', HTTPStatus.METHOD_NOT_ALLOWED)
+    yield Call('GET', '/convert', HTTPStatus.METHOD_NOT_ALLOWED)
     yield Call('GET', '/submit', HTTPStatus.METHOD_NOT_ALLOWED)
     yield Call('PUT', '/', HTTPStatus.METHOD_NOT_ALLOWED)
-    yield Call('PUT', '/translate', HTTPStatus.METHOD_NOT_ALLOWED)
+    yield Call('PUT', '/convert', HTTPStatus.METHOD_NOT_ALLOWED)
     yield Call('PUT', '/submit', HTTPStatus.METHOD_NOT_ALLOWED)
     yield Call('PUT', '/authorize', HTTPStatus.METHOD_NOT_ALLOWED)
     yield Call('DELETE', '/', HTTPStatus.METHOD_NOT_ALLOWED)
-    yield Call('DELETE', '/translate', HTTPStatus.METHOD_NOT_ALLOWED)
+    yield Call('DELETE', '/convert', HTTPStatus.METHOD_NOT_ALLOWED)
     yield Call('DELETE', '/submit', HTTPStatus.METHOD_NOT_ALLOWED)
     yield Call('DELETE', '/authorize', HTTPStatus.METHOD_NOT_ALLOWED)
 

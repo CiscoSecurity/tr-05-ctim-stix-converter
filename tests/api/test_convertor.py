@@ -13,16 +13,15 @@ from api.exceptions import BundleBuilderError
 from api.exceptions import (
     NoObservablesFoundError
 )
-from api.translator import build_bundle
-from api.translator import extract_observables, translate
+from api.convertor import build_bundle, extract_observables, convert
 
 CONTENT = 'data'
 
 
-def test_translate():
-    with patch('api.translator.extract_observables') as extract_mock, \
-            patch('api.translator.Session') as session_mock, \
-            patch('api.translator.build_bundle') as build_bundle_mock:
+def test_convert():
+    with patch('api.convertor.extract_observables') as extract_mock, \
+            patch('api.convertor.Session') as session_mock, \
+            patch('api.convertor.build_bundle') as build_bundle_mock:
         args = {
             'content': CONTENT, 'source': 's', 'source_uri': 'su',
             'external_id_prefix': 'p', 'exclude': ['f.com'], 'title': 't'
@@ -34,7 +33,7 @@ def test_translate():
         ]
         build_bundle_mock.return_value = 'Bundle'
 
-        result = translate(args, tr_client_mock)
+        result = convert(args, tr_client_mock)
 
         assert result == 'Bundle'
         extract_mock.assert_called_once_with(
@@ -223,7 +222,7 @@ def test_build_bundle():
 )
 def test_build_bundle_failed(error):
     session_ = MagicMock()
-    with patch('api.translator.Sighting') as sighting_mock:
+    with patch('api.convertor.Sighting') as sighting_mock:
         sighting_mock.side_effect = error()
 
         with raises(BundleBuilderError):
