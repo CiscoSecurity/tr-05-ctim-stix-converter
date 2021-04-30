@@ -67,7 +67,7 @@ def prepare_form(form):
 
 
 def flash_submit_result(result):
-    flash("Bundle is submitted to Private Intel:")
+    flash("Bundle is submitted to Private Intelligence:")
     for r in result['results']:
         flash(Markup(
             '<a href="{id_}">{type}</a> {result}'.format(type=r['type'],
