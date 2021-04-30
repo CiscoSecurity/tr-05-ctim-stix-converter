@@ -3,14 +3,16 @@
 {% from "_formhelpers.html" import render_text_area %}
 
 {% block content %}
-    <form action='{{ url_for( '.authorize') }}'">
-        <input style=" background-color: {{'#AF4C4C' if not authorized else '#4CAF50'}}" type="submit" value="Authorize" /><br><br>
+
+    <form action='{{ url_for( '.authorize') }}'>
+        <input style=" background-color: {{'#AF4C4C' if not authorized else '#4CAF50'}}" type="submit" value="Authorize" />
+        <br><br>
     </form>
 
     <form action="/" method="post" novalidate>
         {{ form.hidden_tag() }}
-        {{ render_text_area(form.content) }}
 
+        {{ render_text_area(form.content) }}
         {{ render_field(form.exclude) }}
         {{ render_field(form.external_id_prefix) }}
         {{ render_field(form.source) }}
@@ -36,10 +38,12 @@
 
 
         <p>{{ form.translate() }}</p> <br><br>
+
         {{ render_text_area(form.bundle) }}
 
-          {% if (form.bundle.data) %}
+        {% if (form.bundle.data) %}
             <p>{{ form.submit() }}</p>
-          {% endif %}
+        {% endif %}
     </form>
+
 {% endblock %}

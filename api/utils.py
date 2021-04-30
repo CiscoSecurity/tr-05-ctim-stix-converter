@@ -9,6 +9,14 @@ from api.exceptions import (
 )
 
 
+def load(data, schema):
+    message = schema.validate(data)
+    if message:
+        raise InvalidArgumentError(message)
+
+    return schema.load(data)
+
+
 def get_json(schema=None):
     """
     Parse the incoming request's data as JSON.
@@ -20,29 +28,7 @@ def get_json(schema=None):
     if schema is None:
         return data
 
-    message = schema.validate(data)
-    if message:
-        raise InvalidArgumentError(message)
-
-    return schema.load(data)
-
-
-def get_form_data(schema=None, data=None):
-    """
-    Parse the incoming request's data as JSON.
-    Validate and deserialize it with schema if specified.
-    """
-
-    data = data or dict(request.form)
-
-    if schema is None:
-        return data
-
-    message = schema.validate(data)
-    if message:
-        raise InvalidArgumentError(message)
-
-    return schema.load(data)
+    return load(data, schema)
 
 
 def get_tr_client(session_=None):

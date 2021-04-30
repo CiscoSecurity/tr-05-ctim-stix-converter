@@ -47,7 +47,8 @@ def test_translate():
             [{'value': 'a.com', 'type': 'domain'},
              {'value': '1.1.1.1', 'type': 'ip'}],
             session_mock(),
-            {'title': 't'}
+            {'title': 't', 'source': 's',
+             'source_uri': 'su', 'external_id_prefix': 'p'}
         )
 
 
@@ -97,23 +98,23 @@ EXPECTED_BUNDLE = {
         {
             'confidence': 'High',
             'external_ids': [
-                'ctim-bundle-builder-indicator-ed480c2637ff25bdef65de'
-                '7ecb447dab4c48450928008dcacf9c2aa0ce74ff80'
+                'ctim-bundle-builder-indicator-5e491ffc7c7d619f6'
+                '4a5ae6062e6359484493b0b38f4d5d040c6db7c81a7e2a7'
             ],
-            'producer': 'CTIM-STIX Translator',
+            'producer': 'CTIM-STIX Convertor',
             'schema_version': '1.0.17',
             'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
-            'title': 'Generated with CTIM-STIX Translator',
+            'title': 'Generated with CTIM-STIX Convertor',
             'type': 'indicator'
         }
     ],
     'relationships': [
         {
             'external_ids': [
-                'ctim-bundle-builder-relationship-79137665a3eaade'
-                '02dd56377607a2b82ecbbdce03c239cd0278712451c7dbe0b'
+                'ctim-bundle-builder-relationship-79822fc0aa09'
+                '11e010aea36bb3aae3b2ba044313798da32288834e3cc383a53e'
             ],
             'relationship_type': 'member-of',
             'schema_version': '1.0.17',
@@ -130,10 +131,10 @@ EXPECTED_BUNDLE = {
             'confidence': 'High',
             'count': 1,
             'external_ids': [
-                'ctim-bundle-builder-sighting-500f39d0fa717a2232'
-                'ecb9df3b948cb1f9232d3b006d3a5d37c003e8a9842310',
-                'ctim-bundle-builder-sighting-aba5a953be7c30c66465242ea9'
-                'c6b31e270d8ce7118795692b75b0cc6bcaac9d'
+                'ctim-bundle-builder-sighting-4f9c8ee028697b'
+                '77c8d014d5b35b7fcbc9c678a0cc431cdce10434994d837105',
+                'ctim-bundle-builder-sighting-5f882f1219d12de64'
+                'fcb250f85169cb7c181740e50a3ba3c441c399f956a71be'
             ],
             'internal': False,
             'observables': [
@@ -150,7 +151,7 @@ EXPECTED_BUNDLE = {
             'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
-            'title': 'Generated with CTIM-STIX Translator',
+            'title': 'Generated with CTIM-STIX Convertor',
             'type': 'sighting'
         }
     ],
@@ -158,6 +159,16 @@ EXPECTED_BUNDLE = {
     'source_uri': 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
     'type': 'bundle'
 }
+
+DEFAULT_ARGS = {
+    'indicator': {'title': 'Generated with CTIM-STIX Convertor',
+                  'confidence': 'High', 'producer': 'CTIM-STIX Convertor'},
+    'source': 'CTIM-STIX Convertor',
+    'sighting': {'title': 'Generated with CTIM-STIX Convertor',
+                 'confidence': 'High', 'internal': False, 'count': 1},
+    'source_uri':
+        'https://github.com/CiscoSecurity/tr-05-ctim-stix-translator',
+    'external_id_prefix': 'ctim-stix-convertor'}
 
 
 def check_and_pop_time(entity, time_field_name, start_time, end_time=None):
@@ -183,9 +194,10 @@ def test_build_bundle():
     result = build_bundle(
         [
             {'value': 'a.com', 'type': 'domain'},
-            {'value': '1.1.1.1', 'type': 'ip'}
+            {'value': '1.1.1.1', 'type': 'ip'},
         ],
-        session_
+        session_,
+        args=DEFAULT_ARGS
     )
     result = result.json
 

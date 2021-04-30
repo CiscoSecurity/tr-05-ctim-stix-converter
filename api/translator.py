@@ -20,9 +20,9 @@ def translate(args, tr_client):
     )
 
     session_ = Session(
-        external_id_prefix=args.pop('external_id_prefix'),
-        source=args.pop('source'),
-        source_uri=args.pop('source_uri')
+        external_id_prefix=args['external_id_prefix'],
+        source=args['source'],
+        source_uri=args['source_uri']
     )
     return build_bundle(observables, session_, args)
 

@@ -24,9 +24,8 @@ def test_translate_success(client, authorization):
 @mark.parametrize(
     'request_body, expected_message',
     (
-            ({'content': 'content', 'observables': ''},
-             {'_schema': ['Fields: observed_time, observables,'
-                          ' valid_time are not allowed to customize.']}),
+            ({'content': 'content', 'indicator': {'title': ''}},
+             {'indicator': {'title': ['Field may not be blank.']}}),
             ({'content': 'content', 'source': ''},
              {'source': ['Field may not be blank.']}),
             ({},
