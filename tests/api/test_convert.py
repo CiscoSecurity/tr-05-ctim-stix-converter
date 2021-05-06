@@ -10,7 +10,7 @@ BODY = {'content': 'content'}
 
 
 def test_convert_success(client, authorization):
-    with patch('api.convertor.convert') as convert_mock, \
+    with patch('api.converter.convert') as convert_mock, \
             patch('api.utils.ThreatResponse') as tr_mock:
         convert_mock.return_value = MagicMock(json={'type': 'bundle'})
         tr_mock.return_value = MagicMock()
@@ -46,7 +46,7 @@ def test_convert_bad_request(
 
 
 def test_convert_bundle_builder_error(client, authorization, error_response):
-    with patch('api.convertor.convert') as convert_mock, \
+    with patch('api.converter.convert') as convert_mock, \
             patch('api.utils.ThreatResponse') as tr_mock:
         convert_mock.side_effect = BundleBuilderError(Exception())
         tr_mock.return_value = MagicMock()

@@ -5,7 +5,7 @@ from flask import (
 )
 from markupsafe import Markup
 
-from api import convertor
+from api import converter
 from api.schemas import ArgumentsSchema
 from api.utils import get_tr_client, load
 from forms import AuthorizeForm, MainForm
@@ -23,7 +23,7 @@ def process():
 
             if form.convert.data:
                 data = load(prepare_form(form), schema=ArgumentsSchema())
-                bundle = convertor.convert(data, tr_client)
+                bundle = converter.convert(data, tr_client)
                 form.bundle.data = json.dumps(
                     bundle.json, indent=4, sort_keys=True
                 )

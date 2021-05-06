@@ -13,15 +13,15 @@ from api.exceptions import BundleBuilderError
 from api.exceptions import (
     NoObservablesFoundError
 )
-from api.convertor import build_bundle, extract_observables, convert
+from api.converter import build_bundle, extract_observables, convert
 
 CONTENT = 'data'
 
 
 def test_convert():
-    with patch('api.convertor.extract_observables') as extract_mock, \
-            patch('api.convertor.Session') as session_mock, \
-            patch('api.convertor.build_bundle') as build_bundle_mock:
+    with patch('api.converter.extract_observables') as extract_mock, \
+            patch('api.converter.Session') as session_mock, \
+            patch('api.converter.build_bundle') as build_bundle_mock:
         args = {
             'content': CONTENT, 'source': 's', 'source_uri': 'su',
             'external_id_prefix': 'p', 'exclude': ['f.com'], 'title': 't'
@@ -97,23 +97,23 @@ EXPECTED_BUNDLE = {
         {
             'confidence': 'High',
             'external_ids': [
-                'ctim-bundle-builder-indicator-5e491ffc7c7d619f6'
-                '4a5ae6062e6359484493b0b38f4d5d040c6db7c81a7e2a7'
+                'ctim-bundle-builder-indicator-53f8288fd13e5c42a'
+                'bea3ea45b8f6705109a68da402bbcd8b22bc32b45f82116'
             ],
-            'producer': 'CTIM-STIX Convertor',
+            'producer': 'CTIM-STIX Converter',
             'schema_version': '1.0.17',
             'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
-            'title': 'Generated with CTIM-STIX Convertor',
+            'title': 'Generated with CTIM-STIX Converter',
             'type': 'indicator'
         }
     ],
     'relationships': [
         {
             'external_ids': [
-                'ctim-bundle-builder-relationship-79822fc0aa09'
-                '11e010aea36bb3aae3b2ba044313798da32288834e3cc383a53e'
+                'ctim-bundle-builder-relationship-6b7c20ef47b2c7'
+                '7fc6b8963384b437a1ace32fbb2e43f80ab49c36db9044f9b7'
             ],
             'relationship_type': 'member-of',
             'schema_version': '1.0.17',
@@ -130,10 +130,10 @@ EXPECTED_BUNDLE = {
             'confidence': 'High',
             'count': 1,
             'external_ids': [
-                'ctim-bundle-builder-sighting-4f9c8ee028697b'
-                '77c8d014d5b35b7fcbc9c678a0cc431cdce10434994d837105',
-                'ctim-bundle-builder-sighting-5f882f1219d12de64'
-                'fcb250f85169cb7c181740e50a3ba3c441c399f956a71be'
+                'ctim-bundle-builder-sighting-c517a944964dc8b926'
+                '83bbff5343054fcdfa0e242d81bdf38efc7075513dcf3a',
+                'ctim-bundle-builder-sighting-5856bf0654957d0df6'
+                '7de631d39bfbc18c3086347d46b1bc9663d35dd4697ed7'
             ],
             'internal': False,
             'observables': [
@@ -150,7 +150,7 @@ EXPECTED_BUNDLE = {
             'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
-            'title': 'Generated with CTIM-STIX Convertor',
+            'title': 'Generated with CTIM-STIX Converter',
             'type': 'sighting'
         }
     ],
@@ -160,14 +160,14 @@ EXPECTED_BUNDLE = {
 }
 
 DEFAULT_ARGS = {
-    'indicator': {'title': 'Generated with CTIM-STIX Convertor',
-                  'confidence': 'High', 'producer': 'CTIM-STIX Convertor'},
-    'source': 'CTIM-STIX Convertor',
-    'sighting': {'title': 'Generated with CTIM-STIX Convertor',
+    'indicator': {'title': 'Generated with CTIM-STIX Converter',
+                  'confidence': 'High', 'producer': 'CTIM-STIX Converter'},
+    'source': 'CTIM-STIX Converter',
+    'sighting': {'title': 'Generated with CTIM-STIX Converter',
                  'confidence': 'High', 'internal': False, 'count': 1},
     'source_uri':
         'https://github.com/CiscoSecurity/tr-05-ctim-stix-translator',
-    'external_id_prefix': 'ctim-stix-convertor'}
+    'external_id_prefix': 'ctim-stix-converter'}
 
 
 def check_and_pop_time(entity, time_field_name, start_time, end_time=None):
@@ -213,7 +213,6 @@ def test_build_bundle():
         result['indicators'][0], 'valid_time',
         start_time, start_time + timedelta(30)
     )
-
     assert result == EXPECTED_BUNDLE
 
 
@@ -222,7 +221,7 @@ def test_build_bundle():
 )
 def test_build_bundle_failed(error):
     session_ = MagicMock()
-    with patch('api.convertor.Sighting') as sighting_mock:
+    with patch('api.converter.Sighting') as sighting_mock:
         sighting_mock.side_effect = error()
 
         with raises(BundleBuilderError):
