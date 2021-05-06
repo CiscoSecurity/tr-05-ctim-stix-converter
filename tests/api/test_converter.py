@@ -13,16 +13,15 @@ from api.exceptions import BundleBuilderError
 from api.exceptions import (
     NoObservablesFoundError
 )
-from api.translator import build_bundle
-from api.translator import extract_observables, translate
+from api.converter import build_bundle, extract_observables, convert
 
 CONTENT = 'data'
 
 
-def test_translate():
-    with patch('api.translator.extract_observables') as extract_mock, \
-            patch('api.translator.Session') as session_mock, \
-            patch('api.translator.build_bundle') as build_bundle_mock:
+def test_convert():
+    with patch('api.converter.extract_observables') as extract_mock, \
+            patch('api.converter.Session') as session_mock, \
+            patch('api.converter.build_bundle') as build_bundle_mock:
         args = {
             'content': CONTENT, 'source': 's', 'source_uri': 'su',
             'external_id_prefix': 'p', 'exclude': ['f.com'], 'title': 't'
@@ -34,7 +33,7 @@ def test_translate():
         ]
         build_bundle_mock.return_value = 'Bundle'
 
-        result = translate(args, tr_client_mock)
+        result = convert(args, tr_client_mock)
 
         assert result == 'Bundle'
         extract_mock.assert_called_once_with(
@@ -47,7 +46,8 @@ def test_translate():
             [{'value': 'a.com', 'type': 'domain'},
              {'value': '1.1.1.1', 'type': 'ip'}],
             session_mock(),
-            {'title': 't'}
+            {'title': 't', 'source': 's',
+             'source_uri': 'su', 'external_id_prefix': 'p'}
         )
 
 
@@ -97,28 +97,28 @@ EXPECTED_BUNDLE = {
         {
             'confidence': 'High',
             'external_ids': [
-                'ctim-bundle-builder-indicator-ed480c2637ff25bdef65de'
-                '7ecb447dab4c48450928008dcacf9c2aa0ce74ff80'
+                'ctim-bundle-builder-indicator-53f8288fd13e5c42a'
+                'bea3ea45b8f6705109a68da402bbcd8b22bc32b45f82116'
             ],
-            'producer': 'CTIM-STIX Translator',
+            'producer': 'CTIM-STIX Converter',
             'schema_version': '1.0.17',
-            'source': 'Threat Response CTIM Bundle Builder',
+            'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
-            'title': 'Generated with CTIM-STIX Translator',
+            'title': 'Generated with CTIM-STIX Converter',
             'type': 'indicator'
         }
     ],
     'relationships': [
         {
             'external_ids': [
-                'ctim-bundle-builder-relationship-cef20b4addbbc18a7385a0b3ffb9'
-                '848805efc0d8294dc064485221efc7fef668'
+                'ctim-bundle-builder-relationship-6b7c20ef47b2c7'
+                '7fc6b8963384b437a1ace32fbb2e43f80ab49c36db9044f9b7'
             ],
             'relationship_type': 'member-of',
             'schema_version': '1.0.17',
             'short_description': 'Sighting is member-of Indicator',
-            'source': 'Threat Response CTIM Bundle Builder',
+            'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
             'type': 'relationship'
@@ -130,10 +130,10 @@ EXPECTED_BUNDLE = {
             'confidence': 'High',
             'count': 1,
             'external_ids': [
-                'ctim-bundle-builder-sighting-500f39d0fa717a2232'
-                'ecb9df3b948cb1f9232d3b006d3a5d37c003e8a9842310',
-                'ctim-bundle-builder-sighting-aba5a953be7c30c66465242ea9'
-                'c6b31e270d8ce7118795692b75b0cc6bcaac9d'
+                'ctim-bundle-builder-sighting-c517a944964dc8b926'
+                '83bbff5343054fcdfa0e242d81bdf38efc7075513dcf3a',
+                'ctim-bundle-builder-sighting-5856bf0654957d0df6'
+                '7de631d39bfbc18c3086347d46b1bc9663d35dd4697ed7'
             ],
             'internal': False,
             'observables': [
@@ -147,17 +147,27 @@ EXPECTED_BUNDLE = {
                 }
             ],
             'schema_version': '1.0.17',
-            'source': 'Threat Response CTIM Bundle Builder',
+            'source': 'SecureX Threat Response CTIM Bundle Builder',
             'source_uri':
                 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
-            'title': 'Generated with CTIM-STIX Translator',
+            'title': 'Generated with CTIM-STIX Converter',
             'type': 'sighting'
         }
     ],
-    'source': 'Threat Response CTIM Bundle Builder',
+    'source': 'SecureX Threat Response CTIM Bundle Builder',
     'source_uri': 'https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder',
     'type': 'bundle'
 }
+
+DEFAULT_ARGS = {
+    'indicator': {'title': 'Generated with CTIM-STIX Converter',
+                  'confidence': 'High', 'producer': 'CTIM-STIX Converter'},
+    'source': 'CTIM-STIX Converter',
+    'sighting': {'title': 'Generated with CTIM-STIX Converter',
+                 'confidence': 'High', 'internal': False, 'count': 1},
+    'source_uri':
+        'https://github.com/CiscoSecurity/tr-05-ctim-stix-translator',
+    'external_id_prefix': 'ctim-stix-converter'}
 
 
 def check_and_pop_time(entity, time_field_name, start_time, end_time=None):
@@ -183,9 +193,10 @@ def test_build_bundle():
     result = build_bundle(
         [
             {'value': 'a.com', 'type': 'domain'},
-            {'value': '1.1.1.1', 'type': 'ip'}
+            {'value': '1.1.1.1', 'type': 'ip'},
         ],
-        session_
+        session_,
+        args=DEFAULT_ARGS
     )
     result = result.json
 
@@ -202,7 +213,6 @@ def test_build_bundle():
         result['indicators'][0], 'valid_time',
         start_time, start_time + timedelta(30)
     )
-
     assert result == EXPECTED_BUNDLE
 
 
@@ -211,7 +221,7 @@ def test_build_bundle():
 )
 def test_build_bundle_failed(error):
     session_ = MagicMock()
-    with patch('api.translator.Sighting') as sighting_mock:
+    with patch('api.converter.Sighting') as sighting_mock:
         sighting_mock.side_effect = error()
 
         with raises(BundleBuilderError):

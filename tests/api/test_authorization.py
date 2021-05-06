@@ -7,7 +7,7 @@ from threatresponse.exceptions import RegionError
 
 
 def routes():
-    yield '/translate'
+    yield '/convert'
     yield '/submit'
 
 

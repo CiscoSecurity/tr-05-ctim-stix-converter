@@ -1,17 +1,19 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, flash, redirect, url_for
 from requests import HTTPError
 
 from api.exceptions import TRError
 from api.submit import submit_api
-from api.translate import translate_api
+from api.convert import convert_api
+from api.ui import ui
 
 app = Flask(__name__)
 
 app.url_map.strict_slashes = False
 app.config.from_object('config.Config')
 
-app.register_blueprint(translate_api)
+app.register_blueprint(convert_api)
 app.register_blueprint(submit_api)
+app.register_blueprint(ui)
 
 
 @app.errorhandler(HTTPError)
@@ -29,6 +31,10 @@ def handle_error(exception):
         exception.__class__.__module__,
         exception.__class__.__name__,
     ])
+
+    if request.blueprint == 'ui':
+        flash(message)
+        return redirect(url_for(request.endpoint))
 
     response = jsonify(code=code, message=message, reason=reason)
     return response, code

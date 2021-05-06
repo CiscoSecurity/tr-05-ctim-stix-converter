@@ -9,6 +9,14 @@ from api.exceptions import (
 )
 
 
+def load(data, schema):
+    message = schema.validate(data)
+    if message:
+        raise InvalidArgumentError(message)
+
+    return schema.load(data)
+
+
 def get_json(schema=None):
     """
     Parse the incoming request's data as JSON.
@@ -20,24 +28,26 @@ def get_json(schema=None):
     if schema is None:
         return data
 
-    message = schema.validate(data)
-    if message:
-        raise InvalidArgumentError(message)
-
-    return schema.load(data)
+    return load(data, schema)
 
 
-def get_tr_client():
+def get_tr_client(session_=None):
     try:
-        assert request.authorization
-        client_id = request.authorization.username
-        client_password = request.authorization.password
-        assert client_id and client_password
+        if session_:
+            client_id = session_.get('client_id')
+            client_password = session_.get('client_password')
+            region = session_.get('region')
+        else:
+            assert request.authorization
+            client_id = request.authorization.username
+            client_password = request.authorization.password
+            region = request.args.get('region')
+            assert client_id and client_password
 
         return ThreatResponse(
             client_id=client_id,
             client_password=client_password,
-            region=request.args.get('region')
+            region=region
         )
 
     except AssertionError as error:

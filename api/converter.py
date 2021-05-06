@@ -7,26 +7,22 @@ from bundlebuilder.models import (
 )
 from bundlebuilder.session import Session
 
-from api.constants import (
-    INDICATOR_VALIDITY_INTERVAL,
-    SIGHTING_DEFAULTS,
-    INDICATOR_DEFAULTS
-)
+from api.constants import INDICATOR_VALIDITY_INTERVAL
 from api.exceptions import (
     NoObservablesFoundError,
     BundleBuilderError
 )
 
 
-def translate(args, tr_client):
+def convert(args, tr_client):
     observables = extract_observables(
         args.pop('content'), tr_client, exclude=args.pop('exclude')
     )
 
     session_ = Session(
-        external_id_prefix=args.pop('external_id_prefix'),
-        source=args.pop('source'),
-        source_uri=args.pop('source_uri')
+        external_id_prefix=args['external_id_prefix'],
+        source=args['source'],
+        source_uri=args['source_uri']
     )
     return build_bundle(observables, session_, args)
 
@@ -45,20 +41,11 @@ def extract_observables(content, tr_client, exclude=None):
     return observables
 
 
-def build_bundle(observables, session_, customized_fields=None):
+def build_bundle(observables, session_, args=None):
     def format_time(time):
         return f'{time.isoformat(timespec="seconds")}Z'
 
-    def get_predefined_fields(defaults, entity):
-        return {
-            **defaults,
-            **{
-                k: v for k, v in customized_fields.items()
-                if k in getattr(entity, 'schema')._declared_fields
-            }
-        }
-
-    customized_fields = {} if customized_fields is None else customized_fields
+    args = {} if args is None else args
     try:
         with session_.set():
             now = datetime.now()
@@ -67,7 +54,7 @@ def build_bundle(observables, session_, customized_fields=None):
             bundle = Bundle()
 
             sighting = Sighting(
-                **get_predefined_fields(SIGHTING_DEFAULTS, Sighting),
+                **args.get(Sighting.type, {}),
                 observed_time=ObservedTime(
                     start_time=now_str,
                     end_time=now_str,
@@ -79,7 +66,7 @@ def build_bundle(observables, session_, customized_fields=None):
             bundle.add_sighting(sighting)
 
             indicator = Indicator(
-                **get_predefined_fields(INDICATOR_DEFAULTS, Indicator),
+                **args.get(Indicator.type, {}),
                 valid_time=ValidTime(
                     start_time=now_str,
                     end_time=format_time(
