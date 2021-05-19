@@ -1,1 +1,1 @@
-tr-05-ctim-stix-translator
+tr-05-ctim-stix-converter
