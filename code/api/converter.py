@@ -1,30 +1,15 @@
-from datetime import datetime
+from xml.dom import minidom
 
-from bundlebuilder.exceptions import ValidationError, SchemaError
-from bundlebuilder.models import (
-    Sighting, Bundle, ObservedTime, Observable,
-    Indicator, ValidTime, Relationship
-)
-from bundlebuilder.session import Session
-
-from api.constants import INDICATOR_VALIDITY_INTERVAL
 from api.exceptions import (
-    NoObservablesFoundError,
-    BundleBuilderError
+    NoObservablesFoundError
 )
+from api.mappings import Indicator
 
 
-def convert(args, tr_client):
-    observables = extract_observables(
-        args.pop('content'), tr_client, exclude=args.pop('exclude')
-    )
+def convert(args):
+    indicators_data = extract_indicators(args['path'])
 
-    session_ = Session(
-        external_id_prefix=args['external_id_prefix'],
-        source=args['source'],
-        source_uri=args['source_uri']
-    )
-    return build_bundle(observables, session_, args)
+    return build_bulk(indicators_data)
 
 
 def extract_observables(content, tr_client, exclude=None):
@@ -41,50 +26,61 @@ def extract_observables(content, tr_client, exclude=None):
     return observables
 
 
-def build_bundle(observables, session_, args=None):
-    def format_time(time):
-        return f'{time.isoformat(timespec="seconds")}Z'
+def build_bulk(indicators_data):
+    indicators = []
 
-    args = {} if args is None else args
-    try:
-        with session_.set():
-            now = datetime.now()
-            now_str = format_time(now)
+    for indicator_data in indicators_data:
+        indicator = Indicator.map(indicator_data)
+        indicators.append(indicator)
 
-            bundle = Bundle()
+    return indicators
 
-            sighting = Sighting(
-                **args.get(Sighting.type, {}),
-                observed_time=ObservedTime(
-                    start_time=now_str,
-                    end_time=now_str,
-                ),
-                observables=[
-                    Observable(**ob) for ob in observables
-                ]
-            )
-            bundle.add_sighting(sighting)
 
-            indicator = Indicator(
-                **args.get(Indicator.type, {}),
-                valid_time=ValidTime(
-                    start_time=now_str,
-                    end_time=format_time(
-                        now + INDICATOR_VALIDITY_INTERVAL
-                    ),
-                )
-            )
-            bundle.add_indicator(indicator)
+def extract_indicators(path):
+    tree = minidom.parse(path)
 
-            relationship_from_sighting_to_indicator = Relationship(
-                relationship_type='member-of',
-                source_ref=sighting,
-                target_ref=indicator,
-                short_description=f'{sighting} is member-of {indicator}',
-            )
-            bundle.add_relationship(relationship_from_sighting_to_indicator)
+    indicators_data = []
 
-            return bundle
+    indicators = tree.getElementsByTagName('incident:Related_Indicator')
 
-    except (ValidationError, SchemaError) as error:
-        raise BundleBuilderError(error)
+    for indicator in indicators:
+        indicator_data = {}
+
+        # get title
+        title = indicator.getElementsByTagName('indicator:Title')
+        title = title[0].firstChild.nodeValue
+        indicator_data['title'] = title
+
+        # get id and start_time
+        indicator_object = indicator.getElementsByTagName('stixCommon:Indicator')
+        id = indicator_object[0].getAttribute('id')
+        start_time = indicator_object[0].getAttribute('timestamp')
+        indicator_data['id'] = id
+        indicator_data['start_time'] = f'{start_time}Z'
+
+        # get producer
+        producer = indicator.getElementsByTagName('stixCommon:Name')
+        producer = producer[0].firstChild.nodeValue
+        indicator_data['producer'] = producer
+
+        # get description
+        description = indicator.getElementsByTagName('indicator:Description')
+        description = description[0].firstChild.nodeValue
+        indicator_data['description'] = description
+
+        # get confidence
+        confidence = indicator.getElementsByTagName('stixCommon:Value')
+        if confidence:
+            confidence = confidence[0].firstChild.nodeValue
+        indicator_data['confidence'] = confidence
+
+        # get types
+        indicator_types = indicator.getElementsByTagName('indicator:Type')
+        types = []
+        for type in indicator_types:
+            types.append(type.firstChild.nodeValue)
+        indicator_data['indicator_type'] = types
+
+        indicators_data.append(indicator_data)
+
+    return indicators_data
