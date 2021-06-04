@@ -1,8 +1,8 @@
-from api import converter
-from api.utils import get_json
 from flask import Blueprint
 
+from api import converter
 from api.schemas import ArgumentsSchema
+from api.utils import get_json
 
 convert_api = Blueprint('convert', __name__)
 

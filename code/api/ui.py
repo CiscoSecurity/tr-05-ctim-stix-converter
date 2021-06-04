@@ -1,7 +1,7 @@
 import json
 
 from flask import (
-    Blueprint, render_template, request, session, redirect, url_for, flash, jsonify
+    Blueprint, render_template, request, session, redirect, url_for, flash
 )
 from markupsafe import Markup
 

@@ -1,8 +1,6 @@
 from xml.dom import minidom
 
-from api.exceptions import (
-    NoObservablesFoundError
-)
+from api.exceptions import NoObservablesFoundError
 from api.mappings import Indicator
 
 
