@@ -1,13 +1,11 @@
 from xml.dom import minidom
 
-from api.exceptions import (
-    NoObservablesFoundError
-)
+from api.exceptions import NoObservablesFoundError
 from api.mappings import Indicator
 
 
 def convert(args):
-    indicators_data = extract_indicators(args['path'])
+    indicators_data = extract_indicators(args['content'])
 
     return build_bulk(indicators_data)
 
@@ -36,8 +34,8 @@ def build_bulk(indicators_data):
     return indicators
 
 
-def extract_indicators(path):
-    tree = minidom.parse(path)
+def extract_indicators(content):
+    tree = minidom.parseString(content)
 
     indicators_data = []
 
