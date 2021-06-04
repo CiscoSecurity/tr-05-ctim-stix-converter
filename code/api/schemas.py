@@ -77,36 +77,6 @@ class ArgumentsSchema(Schema):
         validate=validate_string,
         required=True
     )
-    exclude = fields.List(
-        fields.String(validate=validate_string),
-        required=False,
-        missing=[]
-    )
-    source = fields.String(
-        validate=validate_string,
-        required=False,
-        missing=DEFAULT_SOURCE
-    )
-    source_uri = fields.String(
-        validate=validate_string,
-        required=False,
-        missing=DEFAULT_SOURCE_URI
-    )
-    external_id_prefix = fields.String(
-        validate=validate_string,
-        required=False,
-        missing=DEFAULT_EXTERNAL_ID_PREFIX
-    )
-    indicator = fields.Nested(
-        IndicatorSchema,
-        required=False,
-        missing=IndicatorSchema().load({})
-    )
-    sighting = fields.Nested(
-        SightingSchema,
-        required=False,
-        missing=SightingSchema().load({})
-    )
 
     class Meta:
         unknown = EXCLUDE

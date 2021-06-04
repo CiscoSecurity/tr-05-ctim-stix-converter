@@ -1,7 +1,7 @@
 import json
 
 from flask import (
-    Blueprint, render_template, request, session, redirect, url_for, flash
+    Blueprint, render_template, request, session, redirect, url_for, flash, jsonify
 )
 from markupsafe import Markup
 
@@ -20,18 +20,17 @@ def process():
     if request.method == 'POST':
         if form.validate_on_submit():
             tr_client = get_tr_client(session_=session)
-
             if form.convert.data:
                 data = load(prepare_form(form), schema=ArgumentsSchema())
-                bundle = converter.convert(data, tr_client)
-                form.bundle.data = json.dumps(
-                    bundle.json, indent=4, sort_keys=True
+                bulk = converter.convert(data)
+                form.bulk.data = json.dumps(
+                    {'indicators': bulk}, indent=4, sort_keys=True
                 )
 
             elif form.submit.data:
-                bundle = json.loads(request.form.get('bundle'))
+                bulk = json.loads(request.form.get('bulk'))
                 flash_submit_result(
-                    tr_client.private_intel.bundle.import_.post(bundle)
+                    tr_client.private_intel.bulk.post(bulk)
                 )
 
     return render_template(
