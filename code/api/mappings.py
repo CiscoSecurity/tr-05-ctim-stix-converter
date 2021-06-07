@@ -26,7 +26,7 @@ class Indicator(Mapping):
     def map(cls, indicator_data) -> JSON:
         indicator: JSON = cls.DEFAULTS.copy()
 
-        indicator['id'] = indicator_data['id']
+        indicator['id'] = f'transient:{indicator_data["id"]}'
 
         indicator['valid_time'] = {
             'start_time': indicator_data['start_time'],
