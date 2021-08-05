@@ -2,3 +2,5 @@ Flask==1.1.2
 Flask-WTF==0.14.3
 threatresponse==0.10.0
 git+https://github.com/CiscoSecurity/tr-05-ctim-bundle-builder.git@develop#
+pytest==6.2.2
+flake8==3.9.0
