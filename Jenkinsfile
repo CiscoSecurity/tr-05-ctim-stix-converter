@@ -1,3 +1,3 @@
-@Library('softserve-jenkins-library@CCTRI-2791') _
+@Library('softserve-jenkins-library@main') _
 
 startUiPipeline()
