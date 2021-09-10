@@ -36,7 +36,5 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags:  ciscosecurity/tr-05-ctim-stix-translator:ci-github
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
