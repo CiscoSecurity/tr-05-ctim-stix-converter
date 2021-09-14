@@ -27,6 +27,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: ./
+        with:
+          version: ${{ matrix.buildx-version }}
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
