@@ -31,7 +31,7 @@ jobs:
         id: buildx
         uses: ./
         with:
-          version: ${{ matrix.buildx-version }}
+          version: latest
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
