@@ -50,9 +50,7 @@ def extract_indicators(content):
         indicator_data['title'] = title
 
         # get id and start_time
-        indicator_object = indicator.getElementsByTagName(
-            'stixCommon:Indicator'
-        )
+        indicator_object = indicator.getElementsByTagName('stixCommon:Indicator')
         id = indicator_object[0].getAttribute('id')
         start_time = indicator_object[0].getAttribute('timestamp')
         indicator_data['id'] = id
