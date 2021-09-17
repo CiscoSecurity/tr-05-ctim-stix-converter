@@ -13,7 +13,7 @@ from api.exceptions import BundleBuilderError
 from api.exceptions import (
     NoObservablesFoundError
 )
-from api.converter import build_bundle, extract_observables, convert
+from api.converter import build_bulk, extract_observables, convert
 
 CONTENT = 'data'
 
