@@ -5,8 +5,11 @@ from api.exceptions import TRError
 from api.submit import submit_api
 from api.convert import convert_api
 from api.ui import ui
+from flask_bootstrap import Bootstrap5
+
 
 app = Flask(__name__)
+bootstrap = Bootstrap5(app)
 
 app.url_map.strict_slashes = False
 app.config.from_object('config.Config')

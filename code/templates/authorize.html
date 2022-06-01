@@ -1,12 +1,19 @@
 {% extends "base.html" %}
-{% from "_formhelpers.html" import render_field %}
+{% from 'bootstrap5/form.html' import render_field %}
 
 {% block content %}
-    <form action="/authorize" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        {{ render_field(form.client_id) }}
-        {{ render_field(form.client_password) }}
-        {{ render_field(form.region) }}
-        <p>{{ form.submit() }}</p>
-    </form>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Authorize</li>
+    </ol>
+</nav>
+
+<form action="/authorize" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ render_field(form.client_id) }}
+    {{ render_field(form.client_password) }}
+    {{ render_field(form.region) }}
+    {{ render_field(form.submit) }}
+</form>
 {% endblock %}

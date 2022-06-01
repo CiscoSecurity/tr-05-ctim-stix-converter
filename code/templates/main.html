@@ -1,39 +1,40 @@
 {% extends "base.html" %}
-{% from "_formhelpers.html" import render_field %}
 {% from "_formhelpers.html" import render_text_area %}
 {% from "_formhelpers.html" import render_file_picker %}
+{% from 'bootstrap5/form.html' import render_field %}
 
 {% block content %}
 
-    <form action='{{ url_for( '.authorize') }}'>
-        <input style=" background-color: {{'#AF4C4C' if not authorized else '#4CAF50'}}" type="submit" value="Authorize" />
-        <br><br>
-    </form>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Home</li>
+    </ol>
+</nav>
 
-    <form action="/" method="post" novalidate>
-        {{ form.hidden_tag() }}
+<form action="/" method="post" novalidate>
+    {{ form.hidden_tag() }}
 
-          {{ render_file_picker(form.content) }}
+    {{ render_file_picker(form.content) }}
     <script>
         document.getElementById('file-selector')
-            .addEventListener('change', function() {
+            .addEventListener('change', function () {
 
-            var fr=new FileReader();
-            fr.onload=function(){
-                document.getElementById('content')
-                        .textContent=fr.result;
-            }
+                var fr = new FileReader();
+                fr.onload = function () {
+                    document.getElementById('content')
+                        .textContent = fr.result;
+                }
 
-            fr.readAsText(this.files[0]);
-        })
+                fr.readAsText(this.files[0]);
+            })
     </script>
-        {{ render_text_area(form.content) }}
-        <p>{{ form.convert() }}</p> <br><br>
-        {{ render_text_area(form.bulk) }}
+    {{ render_text_area(form.content) }}
+    <p>{{ form.convert() }}</p> <br><br>
+    {{ render_text_area(form.bulk) }}
 
-        {% if (form.bulk.data) %}
-            <p>{{ form.submit() }}</p>
-        {% endif %}
-    </form>
+    {% if (form.bulk.data) %}
+    <p>{{ form.submit() }}</p>
+    {% endif %}
+</form>
 
 {% endblock %}
