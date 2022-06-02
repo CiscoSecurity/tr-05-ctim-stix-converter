@@ -38,7 +38,7 @@
             <div class="collapse navbar-collapse" id="navcol-2">
                 <ul class="navbar-nav ms-auto"></ul>
                     <form action='{{ url_for( '.authorize') }}'>
-                        <input class="btn ms-md-2 {{'btn-not-authorized' if not authorized else ''}}" type="submit" value="{{'Authorize' if not authorized else 'Authorized'}}" />
+                        <input class="btn ms-md-2 {{'btn-primary' if not authorized else 'btn-authorized'}}" type="submit" value="{{'Authorize' if not authorized else 'Authorized'}}" />
                     </form>
             </div>
         </div>

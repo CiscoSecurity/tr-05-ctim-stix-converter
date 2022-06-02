@@ -5,11 +5,9 @@
 {% endmacro %}
 
 {% macro render_text_area(field) %}
-<p>
-<h2>{{ field.label }}</h2>
-{{ field(rows='20',cols='150') }}
+<h4>{{ field.label }}</h4>
+{{ field(class='form-control mb-3',rows='20',cols='150') }}
 {{ render_form_errors(field) }}
-</p>
 {% endmacro %}
 
 {% macro render_file_picker(field) %}

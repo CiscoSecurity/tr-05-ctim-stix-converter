@@ -72,12 +72,14 @@ def prepare_form(form):
 
 
 def flash_submit_result(result):
-    flash("Bundle is submitted to Private Intelligence:")
-    for r in result['results']:
-        flash(
-            Markup(
-                '<a href="{id_}">{type}</a> {result}'.format(
-                    type=r['type'], id_=r['id'], result=r['result']
-                )
-            )
-        )
+    flash("STIX Bundle was submitted to Private Intelligence.")
+    # TODO: make a deep link to the submitted intelligence
+    # print(result)
+    # for r in result['results']:
+    #     flash(
+    #         Markup(
+    #             '<a href="{id_}">{type}</a> {result}'.format(
+    #                 type=r['type'], id_=r['id'], result=r['result']
+    #             )
+    #         )
+    #     )

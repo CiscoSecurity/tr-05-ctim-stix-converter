@@ -28,13 +28,20 @@
                 fr.readAsText(this.files[0]);
             })
     </script>
-    {{ render_text_area(form.content) }}
-    <p>{{ form.convert() }}</p> <br><br>
-    {{ render_text_area(form.bulk) }}
 
-    {% if (form.bulk.data) %}
-    <p>{{ form.submit() }}</p>
-    {% endif %}
+    <div class="row align-items-start">
+        <div class="col">
+            {{ render_text_area(form.content) }}
+            {{ form.convert(class='btn btn-primary mb-3') }}
+        </div>
+        <div class="col">
+            {{ render_text_area(form.bulk) }}
+
+            {% if (form.bulk.data) %}
+            {{ form.submit(class='form-control btn btn-danger') }}
+            {% endif %}
+        </div>
+    </div>
 </form>
 
 {% endblock %}
