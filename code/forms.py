@@ -18,7 +18,7 @@ class AuthorizeForm(FlaskForm):
         'CTR Password', validators=[DataRequired()]
     )
     region = SelectField('Region', choices=['us', 'eu', 'apjc'], default='us')
-    submit = SubmitField('Authorize')
+    submit = SubmitField('Login')
 
 
 class CommonEntityForm(FlaskForm):
