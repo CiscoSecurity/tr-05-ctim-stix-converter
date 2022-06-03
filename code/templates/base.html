@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='Navbar-Right-Links.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 
 <body>
@@ -37,8 +38,9 @@
                     class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navcol-2">
                 <ul class="navbar-nav ms-auto"></ul>
-                    <form action='{{ url_for( '.authorize') }}'>
-                        <input class="btn ms-md-2 {{'btn-primary' if not authorized else 'btn-authorized'}}" type="submit" value="{{'Authorize' if not authorized else 'Authorized'}}" />
+                    <form action='{{ url_for( '.authorize') }}'>                        
+                        <button class="btn ms-md-2 btn-sm {{'btn-danger' if not authorized else 'btn-authorized'}}" type="submit">
+                            <i class="fa-solid {{'fa-lock-open' if not authorized else 'fa-lock'}}"></i>&nbsp;{{'Authorize' if not authorized else 'Authorized'}}</button>
                     </form>
             </div>
         </div>
@@ -64,6 +66,8 @@
         </div>
     </div>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"></script>
+
 </body>
 
 </html>

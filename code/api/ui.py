@@ -12,8 +12,12 @@ from forms import AuthorizeForm, MainForm
 
 ui = Blueprint('ui', __name__)
 
-
 @ui.route('/', methods=['GET', 'POST'])
+def main():
+    return render_template('landing_page.html')
+
+
+@ui.route('/upload', methods=['GET', 'POST'])
 def process():
     form = MainForm()
 
@@ -34,7 +38,7 @@ def process():
                 )
 
     return render_template(
-        'main.html',
+        'convert.html',
         form=form,
         authorized=session.get('authorized')
     )

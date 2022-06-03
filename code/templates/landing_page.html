@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_text_area %}
+{% from "_formhelpers.html" import render_file_picker %}
+{% from 'bootstrap5/form.html' import render_field %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Home</li>
+    </ol>
+</nav>
+
+<div>
+    <h2>Use Case</h2>
+    <hr />
+    <p>This website is an online tool to convert from a Structured Threat Intelligence Expression (STIX) format to Cisco
+        Threat Intelligence Model (CTIM).</p>
+</div>
+
+<div>
+    <h2>Video Tutorial</h2>
+    <hr />
+    <p><iframe width="640" height="480" src="https://www.youtube.com/embed/xxxxxxxxxxx" title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe></p>
+</div>
+
+<div>
+    <h2>Supported File Formats</h2>
+    <hr />
+    <ul class="list-group">
+        <ol>STIX v1.x</ol>
+    </ul>
+</div>
+</br>
+<div>
+    <h2>Questions?</h2>
+    <hr />
+    <p>TBD</p>
+</div>
+
+
+{% endblock %}
