@@ -13,12 +13,12 @@ from api.constants import (
 
 
 class AuthorizeForm(FlaskForm):
-    client_id = StringField('Client', validators=[DataRequired()])
+    client_id = StringField('Client ID', validators=[DataRequired()])
     client_password = PasswordField(
-        'CTR Password', validators=[DataRequired()]
+        'Password', validators=[DataRequired()]
     )
     region = SelectField('Region', choices=['us', 'eu', 'apjc'], default='us')
-    submit = SubmitField('Authorize')
+    submit = SubmitField('Login')
 
 
 class CommonEntityForm(FlaskForm):

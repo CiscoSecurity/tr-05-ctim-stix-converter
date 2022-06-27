@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_text_area %}
+{% from "_formhelpers.html" import render_file_picker %}
+{% from 'bootstrap5/form.html' import render_field %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Home</li>
+    </ol>
+</nav>
+
+<div class="float-end">
+    <a class="btn btn-primary" href="/upload">Get Started</a>
+</div>
+
+<div>
+    <h2>About</h2>
+    <hr />
+    <p>This website is an online tool to convert from a Structured Threat Intelligence Expressions (STIX) format to
+        Cisco Threat Intelligence Model (CTIM). This translation component is crucial in the rapid investigation of
+        incidents, or when threat hunting. Structured Threat Information Expression (STIX) is a language and
+        serialization format used to exchange cyber threat intelligence (CTI).<br/>
+        <br /><a href="https://oasis-open.github.io/cti-documentation/stix/intro">STIX Documentation</a>
+        <br /><a href="https://github.com/threatgrid/ctim/blob/master/doc/tutorials/modeling-threat-intel-ctim.md">Modeling Threat Intelligence in CTIM</a><br/><br/>
+        <a class="btn btn-primary" href="/upload">Upload</a>
+    </p>
+
+</div>
+
+<div>
+    <h2>Video Tutorial</h2>
+    <hr />
+    <p><iframe width="640" height="480" src="https://www.youtube.com/embed/AKLst2vIuiA" title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe></p>
+</div>
+
+<div>
+    <h2>Supported File Formats</h2>
+    <hr />
+    <ul class="list-group">
+        <ol>STIX v1.x</ol>
+    </ul>
+</div>
+</br>
+<div>
+    <h2>Questions?</h2>
+    <hr />
+    <p><a href="mailto:tr-integrations-support@cisco.com">tr-integrations-support@cisco.com</a></p>
+</div>
+
+
+{% endblock %}

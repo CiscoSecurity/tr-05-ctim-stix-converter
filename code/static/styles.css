@@ -1,0 +1,18 @@
+.btn-authorized {
+    color: #000;
+    background-color: #ababab;
+    border-color: #393939;
+    font-weight: bold;
+}
+.badge-small {
+    --bs-icon-size: .75rem;
+    display: absolute;
+    margin: 10px;
+    justify-content: center;
+    align-items: center;
+    font-size: var(--bs-icon-size);
+}
+#ctim-title {
+    font-size: 1.5em;
+    font-weight: bold;
+}

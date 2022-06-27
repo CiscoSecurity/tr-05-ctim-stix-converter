@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_text_area %}
+{% from "_formhelpers.html" import render_file_picker %}
+{% from 'bootstrap5/form.html' import render_field %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Upload</li>
+    </ol>
+</nav>
+
+<form action="/upload" method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    {{ render_file_picker(form.content) }}
+    <script>
+        document.getElementById('file-selector')
+            .addEventListener('change', function () {
+
+                var fr = new FileReader();
+                fr.onload = function () {
+                    document.getElementById('content')
+                        .textContent = fr.result;
+                }
+
+                fr.readAsText(this.files[0]);
+            })
+    </script>
+
+    <div class="row align-items-start">
+        <div class="col">
+            {{ render_text_area(form.content) }}
+            {{ form.convert(class='btn btn-primary mb-3') }}
+        </div>
+        <div class="col">
+            {{ render_text_area(form.bulk) }}
+
+            {% if (form.bulk.data) %}
+            {{ form.submit(class='form-control btn btn-danger') }}
+            {% endif %}
+        </div>
+    </div>
+</form>
+
+{% endblock %}

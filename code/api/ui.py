@@ -12,8 +12,12 @@ from forms import AuthorizeForm, MainForm
 
 ui = Blueprint('ui', __name__)
 
-
 @ui.route('/', methods=['GET', 'POST'])
+def main():
+    return render_template('landing_page.html')
+
+
+@ui.route('/upload', methods=['GET', 'POST'])
 def process():
     form = MainForm()
 
@@ -34,7 +38,7 @@ def process():
                 )
 
     return render_template(
-        'main.html',
+        'convert.html',
         form=form,
         authorized=session.get('authorized')
     )
@@ -72,12 +76,14 @@ def prepare_form(form):
 
 
 def flash_submit_result(result):
-    flash("Bundle is submitted to Private Intelligence:")
-    for r in result['results']:
-        flash(
-            Markup(
-                '<a href="{id_}">{type}</a> {result}'.format(
-                    type=r['type'], id_=r['id'], result=r['result']
-                )
-            )
-        )
+    flash("STIX Bundle was submitted to Private Intelligence.")
+    # TODO: make a deep link to the submitted intelligence
+    print(result)
+    # for r in result['results']:
+    #     flash(
+    #         Markup(
+    #             '<a href="{id_}">{type}</a> {result}'.format(
+    #                 type=r['type'], id_=r['id'], result=r['result']
+    #             )
+    #         )
+    #     )
