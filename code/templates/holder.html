@@ -1,0 +1,45 @@
+<form action="/upload" method="post" novalidate="">
+  <input id="csrf_token" name="csrf_token" type="hidden" value="ImEwMjhiYzFmN2JjMjEyZDU0ZTIyMDlhM2E5NDYxMTIwZDFkM2FhMDUi.Yrt5UA.GwhM4AXRmYjzA8Ta3448zIWw0GA"> 
+<div class="mb-3">
+    <label for="formFile" class="form-label"><em>Please upload a STIX file.  STIX v1.x files are currently supported.</em></label>
+    <input class="form-control" type="file" id="file-selector" name="source_file">
+</div>
+
+  <script>
+    document
+      .getElementById('file-selector')
+      .addEventListener('change', function () {
+        var fr = new FileReader();
+        fr.onload = function () {
+          document.getElementById('content').textContent = fr.result;
+        };
+
+        fr.readAsText(this.files[0]);
+      });
+  </script>
+
+  <div class="row align-items-start form-group">
+    <div class="col  form-group__text">
+      
+<h4><label for="content">STIX Data</label></h4>
+<textarea class="textarea form-control" cols="150" id="content" name="content" required="" rows="20"></textarea>
+
+
+
+ 
+    </div>
+    <div class="col form-group__text">
+      
+<h4><label for="bulk">CTIM Bundle</label></h4>
+<textarea class="textarea form-control mb-3" cols="150" id="bulk" name="bulk" readonly="" rows="20"></textarea>
+
+
+
+ 
+    </div>
+
+<div class="row">
+    <input class="btn btn--primary" id="convert" name="convert" type="submit" value="Convert" style="width:15%">
+</div></div>
+  
+</form>
