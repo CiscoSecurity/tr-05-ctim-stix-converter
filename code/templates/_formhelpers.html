@@ -1,18 +1,21 @@
-{% macro render_form_errors(field) %}
-{% for error in field.errors %}
-<span style="color: #ff0000;">[{{ error }}]</span>
-{% endfor %}
-{% endmacro %}
-
-{% macro render_text_area(field) %}
+{% macro render_form_errors(field) %} {% for error in field.errors %}
+<span style="color: #ff0000">[{{ error }}]</span>
+{% endfor %} {% endmacro %} {% macro render_text_area(field) %}
 <h4>{{ field.label }}</h4>
-{{ field(class='form-control mb-3',rows='20',cols='150') }}
-{{ render_form_errors(field) }}
-{% endmacro %}
-
-{% macro render_file_picker(field) %}
-<div class="mb-3">
-    <label for="formFile" class="form-label"><em>Please upload a STIX file.  STIX v1.x files are currently supported.</em></label>
-    <input class="form-control" type="file" id="file-selector" name="source_file">
+{{ field(class='form-control mb-3',rows='20',cols='150') }} {{
+render_form_errors(field) }} {% endmacro %} {% macro render_file_picker(field)
+%}
+<div class="mb-3 form-group__text">
+  <label for="formFile" class="form-label"
+    ><em
+      >Please upload a STIX file. STIX v1.x files are currently supported.</em
+    ></label
+  >
+  <input
+    class="form-control btn"
+    type="file"
+    id="file-selector"
+    name="source_file"
+  />
 </div>
 {% endmacro %}
