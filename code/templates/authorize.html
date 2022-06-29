@@ -1,19 +1,26 @@
-{% extends "base.html" %}
-{% from 'bootstrap5/form.html' import render_field %}
-
+{% extends "base.html" %} {% from 'bootstrap5/form.html' import render_field %}
 {% block content %}
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Authorize</li>
-    </ol>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Authorize</li>
+  </ol>
 </nav>
 
-<form action="/authorize" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    {{ render_field(form.client_id) }}
-    {{ render_field(form.client_password) }}
-    {{ render_field(form.region) }}
-    {{ render_field(form.submit) }}
+<form
+  action="/authorize"
+  method="post"
+  class="form-group form-group__text"
+  novalidate
+>
+  {{ form.hidden_tag() }} {{ render_field(form.client_id) }} {{
+  render_field(form.client_password) }} {{ render_field(form.region) }} {{
+  render_field(form.submit) }}
 </form>
+
+<script>
+  document.querySelectorAll('div.mb-3').forEach((entry) => {
+    entry.classList.add('form-group__text');
+  });
+</script>
 {% endblock %}

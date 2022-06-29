@@ -9,7 +9,7 @@
   </ol>
 </nav>
 
-<form action="/upload" method="post" novalidate>
+<form action="/upload" method="post" novalidate class="form-group">
   {{ form.hidden_tag() }} {{ render_file_picker(form.content) }}
   <script>
     document
@@ -25,11 +25,11 @@
   </script>
 
   <div class="row align-items-start">
-    <div class="col">
+    <div class="col form-group__text">
       {{ render_text_area(form.content) }} {{ form.convert(class='btn
       btn--primary mb-3') }}
     </div>
-    <div class="col">
+    <div class="col form-group__text">
       {{ render_text_area(form.bulk) }} {% if (form.bulk.data) %} {{
       form.submit(class='form-control btn btn--danger') }} {% endif %}
     </div>
